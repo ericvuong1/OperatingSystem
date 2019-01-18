@@ -4,6 +4,7 @@
 
 int parseInput();
 int interpreter();
+int script();
 
 // ==== SHELL MEMORY ====
 typedef struct SHELLMEMORY
@@ -75,7 +76,9 @@ int set(char *words[])
     if (!containsVariable(words))
     {
         createVariable(words);
-    } else {
+    }
+    else
+    {
         containsVariable(words)->value = words[2];
     }
     showShellMemory();
@@ -86,12 +89,14 @@ int print(char *words[])
 {
     printf("looking for %s\n", words[1]);
     shellMemory *target = containsVariable(words);
-    if (target) {
-       printf("%s\n", target->value); 
+    if (target)
+    {
+        printf("%s\n", target->value);
     }
-    else {
-        return 2;
+    else
+    {
         printf("Variable does not exist\n");
+        return 2;
     }
     return 0;
 }
@@ -99,6 +104,7 @@ int print(char *words[])
 int interpreter(char *words[])
 { // assumes words[0] is cmd
     int errCode = 0;
+    printf("%s\n", *words);
 
     // if(*(words[0]) == '.' && *(words[0]+1) == '\\') {
     //     errCode = script(words);
@@ -109,7 +115,7 @@ int interpreter(char *words[])
     if (strcmp(cmd, "run") == 0)
     {
         printf("Implement script\n");
-        // errCode = script(words);
+        errCode = script(words);
     }
     else if (strcmp(cmd, "quit") == 0)
     {
@@ -131,7 +137,6 @@ int interpreter(char *words[])
     }
     else if (strcmp(cmd, "print") == 0)
     {
-        printf("Entered printing mode\n");
         errCode = print(words);
     }
     else
@@ -145,6 +150,13 @@ int interpreter(char *words[])
 
 int parseInput(char ui[])
 {
+
+    // rm endline from fgets
+    if (ui[strlen(ui) - 1] == '\n')
+    {
+        ui[strlen(ui) - 1] = '\0';
+    }
+
     char *words[1000];
     char tmp[200];
 
@@ -168,6 +180,26 @@ int parseInput(char ui[])
     return interpreter(words);
 }
 
+int script(char *words[])
+{
+    int errCode = 0;
+    char line[1000];
+    FILE *p = fopen(words[1], "rt");
+    while (fgets(line, 999, p))
+    {
+        errCode = parseInput(line);
+        printf("error code: %d\n", errCode);
+        if (errCode != 0)
+        {
+            fclose(p);
+            return errCode;
+        }
+        // fgets(line, 999, 0);
+    }
+    fclose(p);
+    return errCode;
+}
+
 int main()
 {
     printf("Welcome to the Eric Vuong shell!\n");
@@ -181,12 +213,6 @@ int main()
     {
         printf("%s", prompt);
         fgets(userInput, 999, stdin);
-
-        // rm endline from fgets
-        if (userInput[strlen(userInput) - 1] == '\n')
-        {
-            userInput[strlen(userInput) - 1] = '\0';
-        }
 
         parseInput(userInput);
     }
