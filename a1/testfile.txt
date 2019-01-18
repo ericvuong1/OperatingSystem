@@ -1,7 +1,7 @@
-help as as
-help as as
-help as as
-set x 5 as as
-set y 6 as as
-set z 7 as as
-print y as as
+help
+help
+help
+set x 5
+set y 6
+set z 7 
+print y

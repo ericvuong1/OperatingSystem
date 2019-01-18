@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 int parseInput();
 int interpreter();
@@ -71,8 +71,8 @@ void showShellMemory()
     printf("null\n");
 }
 
-int set(char *words[])
-{ // assumes first word is cmd
+int set(char *words[]) // assumes first word is cmd
+{
     if (!containsVariable(words))
     {
         createVariable(words);
@@ -101,18 +101,19 @@ int print(char *words[])
     return 0;
 }
 
-int interpreter(char *words[])
+int interpreter(char *words[], int count)
 { // assumes words[0] is cmd
     int errCode = 0;
-    printf("%s\n", *words);
-
-    // if(*(words[0]) == '.' && *(words[0]+1) == '\\') {
-    //     errCode = script(words);
-    // }
 
     char *cmd = strdup(words[0]);
+    // todo: weird solution
+    if (strcmp(cmd, "/usr/lib/system/libsystem_trace.dylib") == 0)
+    {
+        return errCode;
+    }
+    printf("%d\n", count);
 
-    if (strcmp(cmd, "run") == 0)
+    if (strcmp(cmd, "run") == 0 && count > 1)
     {
         printf("Implement script\n");
         errCode = script(words);
@@ -131,11 +132,11 @@ int interpreter(char *words[])
                                   "run SCRIPT.TXT \t Executes the file SCRIPT.TXT\n";
         printf("%s", availableCommands);
     }
-    else if (strcmp(cmd, "set") == 0)
+    else if (strcmp(cmd, "set") == 0 && count > 2)
     {
         errCode = set(words);
     }
-    else if (strcmp(cmd, "print") == 0)
+    else if (strcmp(cmd, "print") == 0 && count > 1)
     {
         errCode = print(words);
     }
@@ -150,7 +151,6 @@ int interpreter(char *words[])
 
 int parseInput(char ui[])
 {
-
     // rm endline from fgets
     if (ui[strlen(ui) - 1] == '\n')
     {
@@ -176,8 +176,7 @@ int parseInput(char ui[])
         a++;
         w++;
     }
-    printf("\n");
-    return interpreter(words);
+    return interpreter(words, w);
 }
 
 int script(char *words[])
