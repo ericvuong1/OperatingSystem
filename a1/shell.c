@@ -2,152 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int parseInput();
-int interpreter();
-int script();
-
-// ==== SHELL MEMORY ====
-typedef struct SHELLMEMORY
-{
-    char *variable;
-    char *value;
-    struct SHELLMEMORY *next;
-} shellMemory;
-
-shellMemory *head = NULL;
-shellMemory *tail = NULL;
-
-shellMemory *containsVariable(char *words[])
-{
-    printf("Searching for variable %s\n", words[1]);
-
-    shellMemory *current = head;
-    while (current != NULL)
-    {
-        if (strcmp(current->variable, words[1]) == 0)
-        {
-            printf("Found variable %s\n", current->variable);
-            printf("Value is %s\n", current->value);
-            return current;
-        }
-        current = current->next;
-    }
-    printf("Variable %s never existed\n", words[1]);
-    return 0;
-}
-void createVariable(char *words[])
-{
-    if (head == NULL)
-    {
-        head = malloc(sizeof(shellMemory));
-        head->variable = words[1];
-        head->value = words[2];
-        head->next = NULL;
-        tail = head;
-        printf("Value inserted: %s\n", head->value);
-        printf("Variable name: %s\n", head->variable);
-    }
-    else
-    {
-        tail->next = malloc(sizeof(shellMemory));
-        tail->next->variable = words[1];
-        tail->next->value = words[2];
-        tail->next->next = NULL;
-        tail = tail->next;
-    }
-}
-
-void showShellMemory()
-{
-    printf("Current Shell Memory:\n");
-
-    shellMemory *current = head;
-    while (current != NULL)
-    {
-        printf("%s (%s) -> ", current->variable, current->value);
-        current = current->next;
-    }
-
-    printf("null\n");
-}
-
-int set(char *words[]) // assumes first word is cmd
-{
-    if (!containsVariable(words))
-    {
-        createVariable(words);
-    }
-    else
-    {
-        containsVariable(words)->value = words[2];
-    }
-    showShellMemory();
-    return 0;
-}
-
-int print(char *words[])
-{
-    printf("looking for %s\n", words[1]);
-    shellMemory *target = containsVariable(words);
-    if (target)
-    {
-        printf("%s\n", target->value);
-    }
-    else
-    {
-        printf("Variable does not exist\n");
-        return 2;
-    }
-    return 0;
-}
-
-int interpreter(char *words[], int count)
-{ // assumes words[0] is cmd
-    int errCode = 0;
-
-    char *cmd = strdup(words[0]);
-    // todo: weird solution
-    if (strcmp(cmd, "/usr/lib/system/libsystem_trace.dylib") == 0)
-    {
-        return errCode;
-    }
-    printf("%d\n", count);
-
-    if (strcmp(cmd, "run") == 0 && count > 1)
-    {
-        printf("Implement script\n");
-        errCode = script(words);
-    }
-    else if (strcmp(cmd, "quit") == 0)
-    {
-        printf("Bye!\n");
-    }
-    else if (strcmp(cmd, "help") == 0)
-    {
-        char *availableCommands = "COMMAND \t DESCRIPTION\n\n"
-                                  "help \t\t Displays all commands\n"
-                                  "quit \t\t Exits / terminates the shell with \"Bye!\"\n"
-                                  "set VAR STRING \t Assigns a value to shell memory\n"
-                                  "print VAR \t Prints the STRING assigned to VAR\n"
-                                  "run SCRIPT.TXT \t Executes the file SCRIPT.TXT\n";
-        printf("%s", availableCommands);
-    }
-    else if (strcmp(cmd, "set") == 0 && count > 2)
-    {
-        errCode = set(words);
-    }
-    else if (strcmp(cmd, "print") == 0 && count > 1)
-    {
-        errCode = print(words);
-    }
-    else
-    {
-        printf("Unknown command\n");
-        errCode = 1;
-    }
-
-    return errCode;
-}
+#include "interpreter.h"
 
 int parseInput(char ui[])
 {
@@ -167,6 +22,9 @@ int parseInput(char ui[])
         ;
     while (ui[a] != '\0' && a < 1000)
     {
+        while (ui[a] == ' ' && a < 1000)
+            a++;
+
         for (b = 0; ui[a] != '\0' && ui[a] != ' ' && a < 1000; a++, b++)
         {
             tmp[b] = ui[a];
@@ -179,26 +37,6 @@ int parseInput(char ui[])
     return interpreter(words, w);
 }
 
-int script(char *words[])
-{
-    int errCode = 0;
-    char line[1000];
-    FILE *p = fopen(words[1], "rt");
-    while (fgets(line, 999, p))
-    {
-        errCode = parseInput(line);
-        printf("error code: %d\n", errCode);
-        if (errCode != 0)
-        {
-            fclose(p);
-            return errCode;
-        }
-        // fgets(line, 999, 0);
-    }
-    fclose(p);
-    return errCode;
-}
-
 int main()
 {
     printf("Welcome to the Eric Vuong shell!\n");
@@ -208,12 +46,12 @@ int main()
     char userInput[1000];
     int errorCode = 0;
 
-    while (1)
+    while (errorCode == 0)
     {
         printf("%s", prompt);
         fgets(userInput, 999, stdin);
 
-        parseInput(userInput);
+        errorCode = parseInput(userInput);
     }
 
     return 0;
