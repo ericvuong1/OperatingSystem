@@ -1,0 +1,13 @@
+
+CPU wait time: (n - 1) * q
+  where
+  q: time alotted per quanta
+  n: number of processes ahead
+Throughput: processes complete / T seconds
+Turnaround Time: time = execution + waiting
+  How long it takes to complete
+Waiting time:
+  CPU: is waiting in ready queue (turnaround time)
+  I/O: waiting for hardware
+Response Time: request to process to beginning of execution
+
