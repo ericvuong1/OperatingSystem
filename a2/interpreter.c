@@ -78,38 +78,42 @@ int print(char *words[])
     return 0;
 }
 
-int exec(char *words[], int count){
-  // Check if same file name
-  for (int i = 1; i < count; i++)
-    for(int j = i + 1; j < count; j++)
-      if (strcmp(words[i], words[j]) == 0) {
-        printf("Error: Script %s\n already loaded", words[i]);
-      }
+int exec(char *words[], int count)
+{
+    // Check if same file name
+    for (int i = 1; i < count; i++)
+        for (int j = i + 1; j < count; j++)
+            if (strcmp(words[i], words[j]) == 0)
+            {
+                printf("Error: Script %s\n already loaded", words[i]);
+            }
 
-  // Load each file with myinit() from kernel
-  for(int i = 1; i < count; i++) {
-    
-    FILE *p = fopen(words[i], "rt");
-
-    if (p == NULL)
+    // Load each file with myinit() from kernel
+    for (int i = 1; i < count; i++)
     {
-        printf("Script \"%s\" not found\n", words[i]);
-        return 0;
+
+        FILE *p = fopen(words[i], "rt");
+
+        if (p == NULL)
+        {
+            printf("Script \"%s\" not found\n", words[i]);
+            return 0;
+        }
+        printf("DEBUG: Executing shell scripts: %s...\n", words[i]);
+        myInit(p);
     }
-    printf("DEBUG: Executing shell scripts: %s...\n", words[i]);
-    myInit(p);
-  }
-  scheduler(); 
-  if(isRAMFree()) printf("DEBUG: RAM IS FREE\n");
+    scheduler();
+    if (isRAMFree())
+        printf("DEBUG: RAM IS FREE\n");
 
-  return 0;
+    return 0;
 }
-
 
 int interpreter(char *words[], int count)
 { // assumes words[0] is cmd
     int errCode = 0;
-    if(words[0] == NULL) {
+    if (words[0] == NULL)
+    {
         unknownCommand();
         return errCode;
     }
@@ -127,7 +131,7 @@ int interpreter(char *words[], int count)
     else if (strcmp(cmd, "print") == 0 && count > 1 && count == 2)
         errCode = print(words);
     else if (strcmp(cmd, "exec") == 0 && count >= 2 && count <= 4)
-      errCode = exec(words, count);
+        errCode = exec(words, count);
     else
         errCode = unknownCommand();
 

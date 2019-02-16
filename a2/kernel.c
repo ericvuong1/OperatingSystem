@@ -15,24 +15,28 @@ void addToReady(PCB *pcb);
 readyQueue *readyQueueHead = NULL;
 readyQueue *readyQueueTail = NULL;
 
-void addToReady(PCB *pcb) {
+void addToReady(PCB *pcb)
+{
     printf("DEBUG: Adding to ready queue...\n");
     readyQueue *tmp = malloc(sizeof(readyQueue));
     tmp->pcb = pcb;
     tmp->next = NULL;
 
     // case empty queue
-    if (readyQueueHead == NULL) {
+    if (readyQueueHead == NULL)
+    {
         readyQueueHead = tmp;
         readyQueueTail = tmp;
-    } 
-    // case one element queue 
-    else if (readyQueueHead->next == NULL) {
+    }
+    // case one element queue
+    else if (readyQueueHead->next == NULL)
+    {
         readyQueueTail = tmp;
         readyQueueHead->next = readyQueueTail;
-    } 
+    }
     // case more than one element queue
-    else {
+    else
+    {
         readyQueueTail->next = tmp;
         readyQueueTail = tmp;
     }
@@ -40,30 +44,37 @@ void addToReady(PCB *pcb) {
     return;
 }
 
-int isReadyQueueEmpty() {
+int isReadyQueueEmpty()
+{
     return readyQueueHead == NULL;
 }
 
-
-readyQueue *popReadyQueue() {
-    if (isReadyQueueEmpty()) {
+readyQueue *popReadyQueue()
+{
+    if (isReadyQueueEmpty())
+    {
         return NULL;
     }
     readyQueue *tmp = readyQueueHead;
-    
-    if (readyQueueHead == readyQueueTail) {
+
+    if (readyQueueHead == readyQueueTail)
+    {
         readyQueueHead = NULL;
         readyQueueTail = NULL;
-    } else {
+    }
+    else
+    {
         readyQueueHead = readyQueueHead->next;
     }
     printf("DEBUG: POPPED A PCB\n");
     return tmp;
 }
 
-void myInit(FILE *p) {
+void myInit(FILE *p)
+{
     int ramCell = addToRAM(p);
-    if(ramCell == -1) {
+    if (ramCell == -1)
+    {
         printf("Exceeded RAM storage\n");
         return;
     }
@@ -71,22 +82,27 @@ void myInit(FILE *p) {
     addToReady(pcb);
 }
 
-void scheduler() {
-    while(!isReadyQueueEmpty())
+void scheduler()
+{
+    while (!isReadyQueueEmpty())
     {
-        if(isCPUAvailable()) {
+        if (isCPUAvailable())
+        {
             readyQueue *currentPCBQueue = popReadyQueue();
             if (currentPCBQueue == NULL)
                 continue;
-            
+
             loadToCPU(currentPCBQueue->pcb);
 
             int finished = runCPU(QUANTA, currentPCBQueue->pcb);
 
-            if (!finished) {
+            if (!finished)
+            {
                 printf("DEBUG: CPU not finished with process, not EOF\n");
                 addToReady(currentPCBQueue->pcb);
-            } else {
+            }
+            else
+            {
                 printf("DEBUG: CPU finished with process, reached EOF\n");
                 freeRAM(currentPCBQueue->pcb->ramCell);
                 free(currentPCBQueue);

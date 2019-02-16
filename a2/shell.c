@@ -34,11 +34,11 @@ int parse(char ui[])
         tmp[b] = '\0';
         words[w] = strdup(tmp); // extract words
         a++;
-        if(*words[w] != '\0') // takes care of extra spaces doesn't count on words
+        if (*words[w] != '\0') // takes care of extra spaces doesn't count on words
             w++;
     }
     words[w] = NULL; // set last word to null to know end of ui
-    return interpreter(words, w); 
+    return interpreter(words, w);
 }
 
 // int main()

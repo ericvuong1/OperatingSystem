@@ -9,9 +9,10 @@
 // void createVariable(char *words[]);
 // void showShellMemory();
 
-typedef struct PCB {
+typedef struct PCB
+{
     FILE *PC;
     int ramCell;
 } PCB;
 
-PCB* makePCB(FILE *p, int ramCell);
+PCB *makePCB(FILE *p, int ramCell);

@@ -12,7 +12,8 @@ int isCPUAvailable();
 void loadToCPU(PCB *pcb);
 int runCPU(int quanta, PCB *pcb);
 
-typedef struct CPU {
+typedef struct CPU
+{
     FILE *IP;
     char IR[1000];
     int quanta;
@@ -22,28 +23,34 @@ CPU cpu = {NULL, "", QUANTA};
 
 // void runCPU(int quanta);
 
-int isCPUAvailable() {
+int isCPUAvailable()
+{
     return cpu.IP == NULL;
 }
 
-void loadToCPU(PCB *pcb) {
+void loadToCPU(PCB *pcb)
+{
     cpu.IP = pcb->PC;
     printf("DEBUG: Loaded to CPU, using quanta=%d=======\n", QUANTA);
 }
 
-int runCPU(int quanta, PCB *pcb) {
+int runCPU(int quanta, PCB *pcb)
+{
     int currentQuanta = 0;
     printf("DEBUG: running CPU\n");
-    if(cpu.IP == NULL) {
+    if (cpu.IP == NULL)
+    {
         printf("GG\n");
     }
 
-    while(!feof(cpu.IP)  && currentQuanta < QUANTA && fgets(cpu.IR, 999, cpu.IP)) {
+    while (!feof(cpu.IP) && currentQuanta < QUANTA && fgets(cpu.IR, 999, cpu.IP))
+    {
         printf("DEBUG: Running quanta %d with command: %s\n", currentQuanta, cpu.IR);
         parse(cpu.IR);
         currentQuanta = currentQuanta + 1;
 
-        if(feof(cpu.IP)) {
+        if (feof(cpu.IP))
+        {
             cpu.IP = NULL;
             return 1;
         }
