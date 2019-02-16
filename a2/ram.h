@@ -1,0 +1,1 @@
+void addToRAM(FILE *p);

@@ -1,0 +1,7 @@
+New files:
+  - kernel.c
+  - cpu.c
+  - pcb.c
+  - ram.c
+RAM:
+  array of FILE pointers

@@ -1,0 +1,13 @@
+print x
+set x 1
+set y 2
+set z 3
+print y
+set y 7
+print y
+help
+print z
+unknowncommand
+run
+run nonexistingfile
+quit
