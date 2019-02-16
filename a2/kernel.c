@@ -17,7 +17,7 @@ readyQueue *readyQueueTail = NULL;
 
 void addToReady(PCB *pcb)
 {
-    printf("DEBUG: Adding to ready queue...\n");
+    // printf("DEBUG: Adding to ready queue...\n");
     readyQueue *tmp = malloc(sizeof(readyQueue));
     tmp->pcb = pcb;
     tmp->next = NULL;
@@ -40,7 +40,7 @@ void addToReady(PCB *pcb)
         readyQueueTail->next = tmp;
         readyQueueTail = tmp;
     }
-    printf("DEBUG: QUEUED A PCB\n");
+    // printf("DEBUG: QUEUED A PCB\n");
     return;
 }
 
@@ -66,7 +66,7 @@ readyQueue *popReadyQueue()
     {
         readyQueueHead = readyQueueHead->next;
     }
-    printf("DEBUG: POPPED A PCB\n");
+    // printf("DEBUG: POPPED A PCB\n");
     return tmp;
 }
 
@@ -98,19 +98,19 @@ void scheduler()
 
             if (!finished)
             {
-                printf("DEBUG: CPU not finished with process, not EOF\n");
+                // printf("DEBUG: CPU not finished with process, not EOF\n");
                 addToReady(currentPCBQueue->pcb);
             }
             else
             {
-                printf("DEBUG: CPU finished with process, reached EOF\n");
+                // printf("DEBUG: CPU finished with process, reached EOF\n");
                 freeRAM(currentPCBQueue->pcb->ramCell);
                 free(currentPCBQueue);
             }
-            printf("DEBUG: finished with a PCB =======\n");
+            // printf("DEBUG: finished with a PCB =======\n");
         }
     }
-    printf("DEBUG: Ready Queue is done!\n");
+    // printf("DEBUG: Ready Queue is done!\n");
 }
 
 int main()

@@ -19,7 +19,7 @@ int addToRAM(FILE *p)
     {
         if (ram[i] == NULL)
         {
-            printf("DEBUG: ram[%d] is free, adding to it.\n", i);
+            // printf("DEBUG: ram[%d] is free, adding to it.\n", i);
             ram[i] = p;
             return i;
         }

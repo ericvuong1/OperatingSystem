@@ -82,43 +82,49 @@ int exec(char *words[], int count)
 {
     // Check if same file name
     for (int i = 1; i < count; i++)
+    {
+        int sameFileName = 0;
         for (int j = i + 1; j < count; j++)
             if (strcmp(words[i], words[j]) == 0)
             {
-                printf("Error: Script %s\n already loaded", words[i]);
+                printf("Error: Script %s already loaded\n", words[i]);
+                sameFileName = 1;
             }
-
-    // Load each file with myinit() from kernel
-    for (int i = 1; i < count; i++)
-    {
-
-        FILE *p = fopen(words[i], "rt");
-
-        if (p == NULL)
+        if (!sameFileName)
         {
-            printf("Script \"%s\" not found\n", words[i]);
-            return 0;
+            // Load file with myInit() from kernel
+            FILE *p = fopen(words[i], "rt");
+
+            if (p == NULL)
+            {
+                printf("Script \"%s\" not found\n", words[i]);
+                return 0;
+            }
+            // printf("DEBUG: load to RAM and readyQueue: %s...\n", words[i]);
+            myInit(p);
         }
-        printf("DEBUG: Executing shell scripts: %s...\n", words[i]);
-        myInit(p);
     }
+
     scheduler();
-    if (isRAMFree())
-        printf("DEBUG: RAM IS FREE\n");
+    // if (isRAMFree())
+    // printf("DEBUG: RAM IS FREE\n");
 
     return 0;
 }
 
 int interpreter(char *words[], int count)
 { // assumes words[0] is cmd
+    // printf("DEBUG: INSIDE INTERPRETER COUNT %d\n", count);
     int errCode = 0;
     if (words[0] == NULL)
     {
+        // printf("DEBUG: WORD IS NULL??\n");
         unknownCommand();
         return errCode;
     }
 
     char *cmd = strdup(words[0]);
+    // printf("DEBUG: THE COMMAND IS %s\n", cmd);
 
     if (strcmp(cmd, "run") == 0 && count > 1 && count == 2)
         errCode = run(words);

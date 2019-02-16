@@ -31,21 +31,17 @@ int isCPUAvailable()
 void loadToCPU(PCB *pcb)
 {
     cpu.IP = pcb->PC;
-    printf("DEBUG: Loaded to CPU, using quanta=%d=======\n", QUANTA);
+    // printf("DEBUG: Loaded to CPU, using quanta=%d=======\n", QUANTA);
 }
 
 int runCPU(int quanta, PCB *pcb)
 {
     int currentQuanta = 0;
-    printf("DEBUG: running CPU\n");
-    if (cpu.IP == NULL)
-    {
-        printf("GG\n");
-    }
+    // printf("DEBUG: running CPU\n");
 
     while (!feof(cpu.IP) && currentQuanta < QUANTA && fgets(cpu.IR, 999, cpu.IP))
     {
-        printf("DEBUG: Running quanta %d with command: %s\n", currentQuanta, cpu.IR);
+        // printf("DEBUG: Running quanta %d with command: %s\n", currentQuanta, cpu.IR);
         parse(cpu.IR);
         currentQuanta = currentQuanta + 1;
 
