@@ -42,7 +42,7 @@ int runCPU(int quanta, PCB *pcb) {
         printf("DEBUG: Running quanta %d with command: %s\n", currentQuanta, cpu.IR);
         parse(cpu.IR);
         currentQuanta = currentQuanta + 1;
-        
+
         if(feof(cpu.IP)) {
             cpu.IP = NULL;
             return 1;

@@ -79,14 +79,12 @@ int print(char *words[])
 }
 
 int exec(char *words[], int count){
-  // TODO:
   // Check if same file name
-//   for (int i = 1; i < count; i++)
-//     for(int j = i + 1; j < count; j++)
-//       if (strcmp(words[i], words[j]) == 0) {
-//         printf("Error: Script %s\n already loaded", words[i]);
-//       }
-
+  for (int i = 1; i < count; i++)
+    for(int j = i + 1; j < count; j++)
+      if (strcmp(words[i], words[j]) == 0) {
+        printf("Error: Script %s\n already loaded", words[i]);
+      }
 
   // Load each file with myinit() from kernel
   for(int i = 1; i < count; i++) {
@@ -99,9 +97,10 @@ int exec(char *words[], int count){
         return 0;
     }
     printf("DEBUG: Executing shell scripts: %s...\n", words[i]);
-    myinit(p);
+    myInit(p);
   }
   scheduler(); 
+  if(isRAMFree()) printf("DEBUG: RAM IS FREE\n");
 
   return 0;
 }

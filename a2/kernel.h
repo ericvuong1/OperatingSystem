@@ -1,4 +1,4 @@
-void myinit(FILE *p);
+void myInit(FILE *p);
 void scheduler();
 
 typedef struct readyQueue

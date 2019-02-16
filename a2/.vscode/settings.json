@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "ram.h": "c",
+        "interpreter.h": "c"
+    }
+}

@@ -9,7 +9,7 @@
 #include "kernel.h"
 #include "cpu.h"
 
-void myinit(FILE *p);
+void myInit(FILE *p);
 void addToReady(PCB *pcb);
 
 readyQueue *readyQueueHead = NULL;
@@ -61,9 +61,13 @@ readyQueue *popReadyQueue() {
     return tmp;
 }
 
-void myinit(FILE *p) {
-    addToRAM(p);
-    PCB *pcb = makePCB(p);
+void myInit(FILE *p) {
+    int ramCell = addToRAM(p);
+    if(ramCell == -1) {
+        printf("Exceeded RAM storage\n");
+        return;
+    }
+    PCB *pcb = makePCB(p, ramCell);
     addToReady(pcb);
 }
 
@@ -84,6 +88,7 @@ void scheduler() {
                 addToReady(currentPCBQueue->pcb);
             } else {
                 printf("DEBUG: CPU finished with process, reached EOF\n");
+                freeRAM(currentPCBQueue->pcb->ramCell);
                 free(currentPCBQueue);
             }
             printf("DEBUG: finished with a PCB =======\n");

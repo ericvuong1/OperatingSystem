@@ -11,6 +11,7 @@
 
 typedef struct PCB {
     FILE *PC;
+    int ramCell;
 } PCB;
 
-PCB* makePCB(FILE *p);
+PCB* makePCB(FILE *p, int ramCell);
