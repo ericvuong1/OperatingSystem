@@ -84,6 +84,7 @@ void scheduler() {
                 addToReady(currentPCBQueue->pcb);
             } else {
                 printf("DEBUG: CPU finished with process, reached EOF\n");
+                free(currentPCBQueue);
             }
             printf("DEBUG: finished with a PCB =======\n");
         }
