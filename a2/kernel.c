@@ -36,6 +36,7 @@ void addToReady(PCB *pcb) {
         readyQueueTail->next = tmp;
         readyQueueTail = tmp;
     }
+    printf("DEBUG: QUEUED A PCB\n");
     return;
 }
 
@@ -56,6 +57,7 @@ readyQueue *popReadyQueue() {
     } else {
         readyQueueHead = readyQueueHead->next;
     }
+    printf("DEBUG: POPPED A PCB\n");
     return tmp;
 }
 
@@ -73,10 +75,20 @@ void scheduler() {
             if (currentPCBQueue == NULL)
                 continue;
             
-            loadToCPU(currentPCBQueue->pcb->PC);
-            // run(QUANTA);
+            loadToCPU(currentPCBQueue->pcb);
+
+            int finished = runCPU(QUANTA, currentPCBQueue->pcb);
+
+            if (!finished) {
+                printf("DEBUG: CPU not finished with process, not EOF\n");
+                addToReady(currentPCBQueue->pcb);
+            } else {
+                printf("DEBUG: CPU finished with process, reached EOF\n");
+            }
+            printf("DEBUG: finished with a PCB =======\n");
         }
     }
+    printf("DEBUG: Ready Queue is done!\n");
 }
 
 int main()
