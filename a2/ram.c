@@ -49,9 +49,13 @@ void freeRAM(int ramCell)
 {
     if (ramCell < RAM_SIZE)
     {
+        if(ram[ramCell] != NULL) {
+            fclose(ram[ramCell]->RAM);
+        }
         ram[ramCell] = NULL;
     }
 }
+
 int isRAMFree()
 {
     for (int i = 0; i < RAM_SIZE; i++)
