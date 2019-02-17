@@ -38,20 +38,40 @@ int runCPU(int quanta, PCB *pcb)
 {
     int currentQuanta = 0;
     // printf("DEBUG: running CPU\n");
-
-    while (!feof(cpu.IP) && currentQuanta < QUANTA && fgets(cpu.IR, 999, cpu.IP))
-    {
-        // printf("DEBUG: Running quanta %d with command: %s\n", currentQuanta, cpu.IR);
-        parse(cpu.IR);
-        currentQuanta = currentQuanta + 1;
-
+    while(currentQuanta < QUANTA) {
+        if(fgets(cpu.IR, 999, cpu.IP)!=NULL) {
+            parse(cpu.IR);
+        }
         if (feof(cpu.IP))
         {
             cpu.IP = NULL;
             return 1;
         }
+        currentQuanta = currentQuanta + 1;
     }
     pcb->PC = cpu.IP;
     cpu.IP = NULL;
     return 0;
+
+    // while (!feof(cpu.IP) && currentQuanta < QUANTA && fgets(cpu.IR, 999, cpu.IP))
+    // {
+    //     // printf("DEBUG: Running quanta %d with command: %s\n", currentQuanta, cpu.IR);
+    //     parse(cpu.IR);
+    //     currentQuanta = currentQuanta + 1;
+    //     if (feof(cpu.IP))
+    //     {
+    //         cpu.IP = NULL;
+    //         return 1;
+    //     }
+    // }
+
+    // if (feof(cpu.IP))
+    // {
+    //     cpu.IP = NULL;
+    //     return 1;
+    // }
+
+    // pcb->PC = cpu.IP;
+    // cpu.IP = NULL;
+    // return 0;
 }

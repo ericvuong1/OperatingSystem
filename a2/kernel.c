@@ -9,7 +9,7 @@
 #include "kernel.h"
 #include "cpu.h"
 
-void myInit(FILE *p);
+void myInit(FILE *p, char *fileName);
 void addToReady(PCB *pcb);
 
 readyQueue *readyQueueHead = NULL;
@@ -70,9 +70,9 @@ readyQueue *popReadyQueue()
     return tmp;
 }
 
-void myInit(FILE *p)
+void myInit(FILE *p, char *fileName)
 {
-    int ramCell = addToRAM(p);
+    int ramCell = addToRAM(p, fileName);
     if (ramCell == -1)
     {
         printf("Exceeded RAM storage\n");
