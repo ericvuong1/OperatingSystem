@@ -96,28 +96,6 @@ int exec(char *words[], int count)
         } else {
             printf("Error: Script %s already loaded\n", words[i]);
         }
-
-
-        // int sameFileName = 0;
-        // for (int j = i + 1; j < count; j++)
-        //     if (strcmp(words[i], words[j]) == 0)
-        //     {
-        //         printf("Error: Script %s already loaded\n", words[i]);
-        //         sameFileName = 1;
-        //     }
-        // if (!sameFileName)
-        // {
-        //     // Load file with myInit() from kernel
-        //     FILE *p = fopen(words[i], "rt");
-
-        //     if (p == NULL)
-        //     {
-        //         printf("Script \"%s\" not found\n", words[i]);
-        //     } else {
-            // printf("DEBUG: load to RAM and readyQueue: %s...\n", words[i]);
-        //         myInit(p);
-        //     }
-        // }
     }
 
     scheduler();

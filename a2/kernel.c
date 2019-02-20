@@ -98,11 +98,13 @@ void scheduler()
 
             if (!finished)
             {
+                // The program is added back to the tail of the ready queue
                 // printf("DEBUG: CPU not finished with process, not EOF\n");
                 addToReady(currentPCBQueue->pcb);
             }
             else
             {
+                // Program completes execution
                 // printf("DEBUG: CPU finished with process, reached EOF\n");
                 freeRAM(currentPCBQueue->pcb->ramCell);
                 free(currentPCBQueue);
