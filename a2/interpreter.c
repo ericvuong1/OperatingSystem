@@ -83,17 +83,22 @@ int exec(char *words[], int count)
     // Check if same file name
     for (int i = 1; i < count; i++)
     {
-        if(!ramExists(words[i])) {
+        if (!ramExists(words[i]))
+        {
             // printf("DEBUG: %s doesn't exist in RAM\n", words[i]);
             FILE *p = fopen(words[i], "rt");
             if (p == NULL)
             {
                 printf("Script \"%s\" not found\n", words[i]);
-            } else {
-            // printf("DEBUG: load to RAM and readyQueue: %s...\n", words[i]);
+            }
+            else
+            {
+                // printf("DEBUG: load to RAM and readyQueue: %s...\n", words[i]);
                 myInit(p, words[i]);
             }
-        } else {
+        }
+        else
+        {
             printf("Error: Script %s already loaded\n", words[i]);
         }
     }

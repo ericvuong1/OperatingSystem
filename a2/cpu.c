@@ -38,8 +38,10 @@ int runCPU(int quanta, PCB *pcb)
 {
     int currentQuanta = 0;
     // printf("DEBUG: running CPU\n");
-    while(currentQuanta < QUANTA) {
-        if(fgets(cpu.IR, 999, cpu.IP)!=NULL) {
+    while (currentQuanta < QUANTA)
+    {
+        if (fgets(cpu.IR, 999, cpu.IP) != NULL)
+        {
             parse(cpu.IR);
         }
         if (feof(cpu.IP))

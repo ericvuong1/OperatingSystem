@@ -5,7 +5,7 @@
 #include "ram.h"
 
 // public
-int addToRAM(FILE *p, char* fileName);
+int addToRAM(FILE *p, char *fileName);
 void freeRAM(int ramCell);
 int isRAMFree();
 int ramExists(char *fileName);
@@ -33,12 +33,16 @@ int addToRAM(FILE *p, char *fileName)
 }
 
 // Checks if the filename has already been loaded to the RAM
-int ramExists(char *fileName) {
+int ramExists(char *fileName)
+{
     // printf("DEBUG: CHECKING IF FILENAME EXISTS\n");
-    for(int i = 0; i < RAM_SIZE; i++) {
+    for (int i = 0; i < RAM_SIZE; i++)
+    {
         // printf("DEBUG: %s fileName\n", fileName);
-        if(ram[i] != NULL) {
-            if(strcmp(ram[i]->fileName, fileName) == 0) {
+        if (ram[i] != NULL)
+        {
+            if (strcmp(ram[i]->fileName, fileName) == 0)
+            {
                 return 1;
             }
         }
@@ -50,7 +54,8 @@ void freeRAM(int k)
 {
     if (k < RAM_SIZE)
     {
-        if(ram[k] != NULL) {
+        if (ram[k] != NULL)
+        {
             fclose(ram[k]->RAM);
         }
         ram[k] = NULL;
