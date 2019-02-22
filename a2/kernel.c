@@ -104,12 +104,13 @@ void scheduler()
             }
             else
             {
-                // Program completes execution
                 // printf("DEBUG: CPU finished with process, reached EOF\n");
+
+                // Program completes execution
                 freeRAM(currentPCBQueue->pcb->ramCell);
                 free(currentPCBQueue);
             }
-            // printf("DEBUG: finished with a PCB =======\n");
+            // printf("DEBUG: CPU finished with a PCB =======\n");
         }
     }
     // printf("DEBUG: Ready Queue is done!\n");

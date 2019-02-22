@@ -7,15 +7,14 @@
 // public
 int addToRAM(FILE *p, char *fileName);
 void freeRAM(int ramCell);
-int isRAMFree();
-int ramExists(char *fileName);
+int isRAMFree();               // checks if RAM is empty
+int ramExists(char *fileName); // checks if a program has been loaded already
 
 RAM *ram[RAM_SIZE];
 
 int addToRAM(FILE *p, char *fileName)
 {
     // look for a free ram
-
     for (int i = 0; i < RAM_SIZE; i++)
     {
         if (ram[i] == NULL)
