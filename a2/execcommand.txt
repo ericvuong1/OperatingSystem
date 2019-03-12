@@ -1,1 +1,1 @@
-exec testfile.txt testfile2.txt testfile4.txt
+exec testfilesds.txt testfile.txt testfile.txt
