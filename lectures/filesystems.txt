@@ -1,0 +1,108 @@
+stream representation: bad cause don't know EOF
+block representation: fixed size so useless if not using everything (wasted space)
+
+file attributes:
+	Name
+	Identifier
+	Type
+	Address
+	Size
+	Security
+	Owner
+	Dates: Creation, Modification, Time
+
+File Operations:
+	Create
+	Write
+	Read
+	Position
+	Deleting
+	Appending
+	Overwrite
+
+File Types: Doesn't need to know all types, executable and the rest
+
+Sequential Access:
+	reset cp = 0
+	read next  read cp; cp = cp + 1
+	write next write cp; cp = cp + 1
+
+process:
+	fopen()
+
+os:
+	function: fopen() {
+		...
+	}
+
+
+HDD:
+
+when calling fopen, goes through library, which has fopen and then will use library to call the os' fopen
+
+process:
+	fopen()
+
+library:
+	fopen
+
+os:
+	fopen() {
+
+	}
+
+HDD: actual read
+
+
+sequential file:
+	read: read cp, cp = cp + 1
+	write: write cp, cp = cp + 1
+	reset: cp = 0
+
+AS400 file structure:
+index sequential is sequential file: but can jump to a particular place in the file
+
+AAA | Record aaa || CCC | Record ccc || FFF | Record fff
+
+index sequential:
+
+file in 2 parts:
+Keys: _ _ _ _ _ (usually binary search)
+Sequential: 
+ _ _ _ _ _ _ _ _ _
+ _ _ _ _ _ _ _ _ _
+
+
+ CPU 2 GHz 
+ HDD 1K
+
+ expensive to read since HDD much slower (1K)...
+ therefore, when fopen, os loads file into memory
+ fopen() -> buffer to memory, and everytime we do fwrite f anything, it is working in the main memory not directly into the hard drive
+
+ File Access Methods:
+ 	for all:
+ 		file = open(type, style)
+ 			file is a ptr to BUFFER in memory
+ 			type is text, binary, indexed, partitioned...
+ 			style is read, write, append
+ 		close(file)
+ 			flushes buffer and frees buffer
+ 	sequential:
+ 		fscanf: read one byte, pointer moves to the next byte
+ 		fprintf: write one byte, pointer moves to the next byte
+ 	direct:
+ 		fread: n bytes read from disk
+ 		fwrite: n byte write to disk
+ 		fseek: start position, offset in bytes
+ 			start position: beginning, end, current position
+ 	indexed:
+ 		Iseek: key
+ 		Iread and Iwrite: one record
+
+ 	OS buffers: read until buffer empty, then load more of file into buffer
+ 	
+
+ 
+
+

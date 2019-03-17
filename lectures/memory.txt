@@ -1,0 +1,88 @@
+computer memory
+register-cache-ram-disk-ssd
+speed <--
+
+
+cache - primary - secondary
+
+cpu interaction with cache and primary only
+so programs must be moved to primary to be referenced
+
+absolute addressing: at compile time, run-time location of code has been determined
+relocatable addressing: run-time location of code determined when launched loc = LOAD + OFFSET
+execution addressing: during execution the code can be relocated (moving code at run time)
+
+cpu -> mmu -> memory (RAM)
+
+logical -> MMU -> physical
+
+memory protection:
+	cpu modes: user vs privileged
+
+	cpu mode register: boot computer in privileged mode	
+	Task IN -> user mode
+	Task OUT -> privileged mode
+
+all address developed by user are checked if they exceed the boundaries
+
+Mem allocations issues:
+when process terminate, have holes
+	first fit fast
+	worst fit 
+	best fit smallest left over holes (good for I/O as programs tends to grow)
+
+Mem fragmentation problem:
+	too many holes
+	soln: de-fragment:
+			stop all process
+			compact memory by moving byte by byte
+			update pcb addresses
+			resume processing
+			issue: too expensive and frequency?
+	soln: non-contiguous memory
+
+mem models:
+
+single user:
+	two options: 
+		absolute addressing: user specifies exact address in ram where process will load and execute
+		default addressing: no spcification on address, OS loads to default location
+multiprogramming swapping system with 1 single user at a time is in main storage:
+	main storage:
+		OS
+		swapping area
+
+	backing store (secondary storage): user A, user B, user C...
+
+user is ready to be swapped in and out
+
+partition model process fixed:
+	have multiple Queues for each partition, but problem with extreme cases where only one queue is active for one partition.. waste of resource
+
+	but if merging queues... back to the problem with holes + indefinite postponement
+
+solution:
+	paging model:
+		want user to think there are no memory limits
+		no more holes worry
+
+		problem: 
+			what's the size of user's program?
+			user programs have different sizes
+			swapping entire program is. alot of overhead...
+		soln:
+			setup fixed page size
+			user program is segmented into n pages
+			swap in / out pages as we go
+
+frame: unit of fixed memory in RAM
+page: local representation of a frame in an OS data structure
+page table (in ram): data structure record which frames each page was assigned to
+
+p page address
+f frame address
+d logical/physical address
+
+
+
+

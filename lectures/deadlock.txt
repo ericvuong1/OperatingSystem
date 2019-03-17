@@ -1,0 +1,54 @@
+deadlock basics:
+	set of processes in deadlock state when every process in set is waiting for an event that can eb caused only by another process in the set
+
+	in deadlock processes never finish and resources are tied up preventing jobs from starting and finishing
+
+conditions for a deadlock to exist:
+	mutex
+	hold and wait
+	no pre-emption
+	circular wait
+
+Prevent deadlocks (3):
+	- change necessary conditions
+	- avoid deadlock
+	- wait for deadlock and then recover...
+
+Change necessary conditions:
+	change mutex:
+		Extreme exclusion: 1 processor 1 process 
+	change hold and wait:
+		job control language -> dont start process until all resources are gathered
+		unit request: method uses a programming command to request subset of resources all at once
+
+		problems: - low resource utilization - starvation still possible
+	change no pre-emption: 
+		wait-q-release method is to release all resources when sent to wait-q
+		rob-a-resource, search through wait-q to check for resources being held
+			side-effect: files take long time to find and buffer
+	change circular wait:
+		name resources as r1, r2, r3...
+		access resources in increasing number
+		if resource need lower number, release all higher ones
+		assumes modulo arithmetic
+		
+deadlock recovery:
+
+	prompt user -> let user choose which program to kill
+
+	auto process termination -> 
+		abort all deadlocked chain of processes (expensive)
+		abort one process and reevaluate O(m*n^2) m processes n resources
+
+	resource preemption -> 
+		select victim
+		rollback (total or partial (keeping track with record like transactions in dbs))
+
+banker algorithm:
+
+	compare need/require rows with available	
+	if one match (require < available)
+	add the allocated to available since that process is guaranteed to be finished
+	and continue doing this
+
+	assuming n processes and m resources -> O(mn^2)

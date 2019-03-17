@@ -1,0 +1,38 @@
+Virtual Memory elemebts:
+Memory = RAM + Swap Space
+
+virtual memory:
+
+fixed maximum size of memory not related to RAM
+
+page0... page n
+
+basic alg:
+
+cp program into backing store
+	cutting programing into pages
+	create pcb and page table in RAM
+load subset of pages into RAM
+	swap out a page if not enough room
+execute until need a new page not in RAM
+	load needed page
+	swap out most unused page 		-> which page? seen later
+
+
+Implementing BS:
+
+cp to bs
+open a file in "r+w" mode
+byte array[2000]; // page size = 2000
+fseek(page*2000)
+fread(frame, 2000, fileptr);
+fwrite
+
+page fault algorithm:
+1. page fault
+2. task switch
+3. wait queue -> after load
+						1. wake-up
+						2. ready queue
+						3. get cpu and redo instr.
+

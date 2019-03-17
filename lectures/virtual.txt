@@ -1,0 +1,183 @@
+mem structures:
+	flat: entire program in RAM contiguously
+	paged: program subdivided into equal pieces each piece in RAM or BS
+
+effective memory access time EAT = prob1 T*tlb + Prob 2*T pt
+
+paging data structure:
+
+outer inner offset
+
+outerpage table - inner page table - frames
+
+page table entry format
+
+Index - index of array cell (not stored)
+PID - process owner id
+Valid - indicates if that page is in memory or on disk (swap in/out)
+Key - key is memory of protection ID
+Addresses - real address (or next level of table)
+Used indicates if page is assigned to anyone
+
+Segmentation:
+	segment: visible to programmer
+	paging: invisible
+	segment is a page of variable size
+
+	segmentation addressing:
+	segment table:
+		limit: limit length
+		base: start address
+	segmentation issues:
+		segmentation is good for program but slows OS
+		paging is good for OS but may impose requirements on the user
+		compromise: implement segmentation by using paging
+
+process table-segment table-page tables - real storage
+
+virtual memory:
+
+all of program in memory? no
+Memory = RAM + swap space 
+
+page table
+size n
+
+paging memory map
+
+frame table m
+n>>m
+
+basic alg:
+	cp program into bs
+	create pcb and page table in RAM
+
+	load subset of pages into RAM
+
+	swap page if no room
+
+	execute program until need new page not in RAM - load page and swap most unused (swap method later)
+
+page fault alg:
+	1. reference to page table
+	2. trap, terminate process exec OS
+	3. check page on backing store
+	4. bring missing page, free a frame
+	5. reset page table
+	6. restart instruction on RAM
+
+page fault sequence:
+	interrupt issued and task switch:
+		trap to os
+		save registers at taks switch
+		determine interrupt was a page fault
+		check for legal page reference
+		determine location on disk
+	issue page fault:
+		wait queue for process
+		wait for device to seek and load page
+		issue wake-up interrupt
+	do task switch and interrupt issues procedure	
+		determine wake-up
+		correct page table
+		restore registers
+
+EAT: Effective Access Time:
+	EAT = (1 - p) * ma + p * page_fault_time
+	P probability of a page fault
+	MA memory access time
+
+	EAT is proportional to page-fault-time
+
+reduce swapping since swapping is expensive:
+	using LWP (forking)
+	memory-mapped files (buffers == block)
+	pick a good page size for avg size
+
+How does Mapping work?
+	reduce disk I/O through buffers
+		fopen: copy page of file into a buffer (frame sized)
+		fread/fwrite: carry ut operations on buffer
+		fclose: write out file to disk, cancel all paging tables / bs data
+		when space runs out either: load another page or swap out and then load other page in same buffer
+
+
+Page replacement issues:
+	Overtime, as time increases the process will eventually access all or most of its pages and terminate
+		process percentage -> 100% overtime
+	The more pages the longer the execution, competition between actually executing and waiting for a page fault
+		more pages = longer exec time (longer page fetch, longer process running time)
+	Dependency of page fault rate on amount of storage for a process' pages: the more pages in memory reduces the need for page fault
+		page fault rate decreases to 0 if more process' pages are in primary storage
+	Number of page faults experienced by a process running start to finish:
+
+Paging Issues:
+	Equal allocations: same number of pages loaded
+	Proportional: frames = programing size / VM size * total frames
+	Categorized replacement: global set (any page from any process), local set (pages from only your process)
+	On Demand vs Intelligent Allocation
+
+	Thrashing:
+		if we don't have enough pages to support number of programs in memory, CPU will spend most of its time managing page faults
+		since there will be a lot of swapping in and out, as there isn't enough room to support everyone
+		the cpu will just be swapping in pages they need by replacing with pages they might need on the page fault
+	Working set: soln to thrashing? not really but observation:
+		Stable sometimes if reach certain page
+		decrease the hump in thrashing
+		As we demand more pages it becomes more critical, at some point, it becomes stable (not asking for pages)
+		Increasing the working set is like increasing the window size
+	Thrashing management:
+		Strategy: upper and lower bound: there is a sweet spot there is a range which flattens things out, and that range is lower/upper bound for number of frames
+		page fault rate decreases as number of frames goes up, but OS is built with a lower and upper bound value that determines the number of frames a program should own
+
+Page Replacement techniques:
+	process execute
+	generate page fault
+	hardware traps to OS
+		fault = page fault or illegal mem access? if illegal -> terminate
+		else if page fault:
+			find page in bs
+			find free frame in RAM
+				if found, then allocate page to frame
+				if no free frame then:
+					A) terminate the process with page fault error
+					B) terminate anothe rprocess on a queue (ready/wait)
+					C) page replacement
+
+Page replacement: Selecting a victim, adjust tables, read desired page into the frame and update tables
+
+	1. swap out victim page
+	2. change to invalid
+	3. swap desired pag ein
+	4. reset page table for new page (valid)
+
+selecting victim:L
+	FIFO
+	Optimal
+	LRU
+	LFU
+	MFU
+
+FIFO: less frames doesnt mean more faults
+LRU: least recently used: was not used for a long time, so remove using timestamp problem: O(n) search or insertion sort (algorithmic overhead)
+Second Chance: 
+	page frame table has an flag variable that is set to TRUE when page is used 
+	timer is set to clear all bits to zero
+	page faults are handlded when bit is zero
+	Rule: Victim if FIFO and flag == 0	
+
+LFU MFU: 
+	use integer variable to count the number of time, when page reloaded into RAM it is set to zero
+	LFU: remove lowest used
+	MFU: remove highest used
+
+
+
+
+
+
+
+
+
+
+	
