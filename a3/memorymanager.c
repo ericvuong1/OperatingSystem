@@ -13,6 +13,7 @@ FILE *findPage(int pageNumber, FILE *f);
 int findFrame(FILE *page);
 int findVictim(PCB *p);
 int updateFrame(int frameNumber, int victimFrame, FILE*page);
+int updatePageTable(PCB *p, int pageNumber, int frameNumber, int victimFrame);
 
 // Helper function to concat strings
 char *concat(const char *s1, const char *s2)
@@ -106,6 +107,13 @@ int updateFrame(int frameNumber, int victimFrame, FILE *page) {
     else ram[frameNumber] = page;
     return 1;
 }
+
+int updatePageTable(PCB *p, int pageNumber, int frameNumber, int victimFrame) {
+    if (frameNumber == -1) p->pageTable[pageNumber ] = victimFrame;
+    else p->pageTable[pageNumber] = frameNumber;
+    return 1;
+}
+
 
 int launcher(FILE *p, char *filename)
 {
