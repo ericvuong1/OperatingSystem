@@ -5,6 +5,7 @@
 #include "shellmemory.h"
 #include "shell.h"
 #include "kernel.h"
+#include "memorymanager.h"
 
 int run(char *filename) {
 	FILE *ptr;
@@ -43,18 +44,21 @@ int exec(char *file1, char *file2, char *file3) {
 
 	printf("f1:%s f2:%s f3:%s\n", file1, file2, file3);
 
-	// Add to ready queue each  unique programs
+	// Add to ready queue each unique programs
 	if (file1!=NULL) {
 		p1 = fopen(file1,"rt");
 		result = myinit(p1);
+		if (result) result = launcher(p1, file1);
 	}
 	if (file2!=NULL) {
 		p2 = fopen(file2,"rt");
 		result = myinit(p2);
+		if (result) result = launcher(p2, file2);
 	}
 	if (file3!=NULL) {
 		p3 = fopen(file3,"rt");
 		result = myinit(p3);
+		if (result) result = launcher(p3, file3);
 	}
 
 	if (result > 0) scheduler();

@@ -1,1 +1,1 @@
-int launcher (FILE *p);
+int launcher (FILE *p, char* filename);
