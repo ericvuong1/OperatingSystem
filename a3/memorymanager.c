@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <math.h>
 
 #include "helper.h"
 #include "pcb.h"
@@ -13,6 +12,7 @@ int countTotalPages(FILE *f);
 FILE *findPage(int pageNumber, FILE *f);
 int findFrame(FILE *page);
 int findVictim(PCB *p);
+int updateFrame(int frameNumber, int victimFrame, FILE*page);
 
 // Helper function to concat strings
 char *concat(const char *s1, const char *s2)
@@ -22,6 +22,14 @@ char *concat(const char *s1, const char *s2)
     strcpy(result, s1);
     strcat(result, s2);
     return result;
+}
+// Helper function to ceil any positive numbers
+int ceiling(float num) {
+    int inum = (int) num;
+    if (num == (float)inum) {
+        return inum;
+    }
+    return inum + 1;
 }
 
 int countTotalPages(FILE *f)
@@ -41,8 +49,9 @@ int countTotalPages(FILE *f)
     }
 
     fclose(f);
-    return ceil((double)lines / 4);
+    return ceiling((float)lines / 4);
 }
+
 
 FILE *findPage(int pageNumber, FILE *f)
 {
@@ -80,7 +89,22 @@ int findVictim(PCB *p)
     // if frame number doesn't belong to pages of PCB
     // return that frame
     int randomNumber = rand() % 10;
-    FILE *victim = ram[randomNumber];
+    FILE *victim;
+    int belong = 0;
+    do {
+        belong = 0;
+        for(int i = 0; i < 10 && !belong; i++) {
+            if(p->pageTable[i] == randomNumber) belong = 1;
+        }
+        if (belong) randomNumber = (randomNumber + 1) % 10;
+    } while(belong);
+    return randomNumber;
+}
+
+int updateFrame(int frameNumber, int victimFrame, FILE *page) {
+    if (frameNumber == -1) ram[victimFrame] = page;
+    else ram[frameNumber] = page;
+    return 1;
 }
 
 int launcher(FILE *p, char *filename)
@@ -113,10 +137,6 @@ int launcher(FILE *p, char *filename)
 
     int totalPages = countTotalPages(f);
     printf("%d pages\n", totalPages);
-
-    char a[100];
-    fgets(a, sizeof(a), f);
-    printf("%s\n", a);
 
     FILE *ff = fopen(path, "r");
     FILE *pt = findPage(2, ff);
