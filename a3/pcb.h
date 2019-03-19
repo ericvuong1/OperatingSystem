@@ -1,7 +1,7 @@
-typedef struct PCB_REC {
+typedef struct PCB {
 	FILE *PC;
 	int start; // startAddressRAM
-	struct PCB_REC *next;
+	struct PCB *next;
 
 	int pageTable[10];
 	int PC_page;

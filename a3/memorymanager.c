@@ -6,13 +6,14 @@
 #include "helper.h"
 #include "pcb.h"
 #include "ram.h"
+#include "memorymanager.h"
 
 int launcher(FILE *p, char *filename);
 int countTotalPages(FILE *f);
 FILE *findPage(int pageNumber, FILE *f);
 int findFrame(FILE *page);
 int findVictim(PCB *p);
-int updateFrame(int frameNumber, int victimFrame, FILE*page);
+int updateFrame(int frameNumber, int victimFrame, FILE *page);
 int updatePageTable(PCB *p, int pageNumber, int frameNumber, int victimFrame);
 
 // Helper function to concat strings
@@ -25,12 +26,44 @@ char *concat(const char *s1, const char *s2)
     return result;
 }
 // Helper function to ceil any positive numbers
-int ceiling(float num) {
-    int inum = (int) num;
-    if (num == (float)inum) {
+int ceiling(float num)
+{
+    int inum = (int)num;
+    if (num == (float)inum)
+    {
         return inum;
     }
     return inum + 1;
+}
+
+// File Holder
+
+char *filePaths[10];
+
+void initFilePaths()
+{
+    int i;
+
+    for (i = 0; i < 10; i++)
+        filePaths[i] = NULL;
+}
+
+int addToFilePaths(char *fileName)
+{
+    int i;
+
+    if (fileName == NULL)
+        return -1; // error
+
+    for (i = 0; i < 10 && filePaths[i] != NULL; i++); // find next available space
+    filePaths[i] = (char *)malloc(strlen(fileName)*sizeof(char));
+    if (i < 10)
+    {
+        strcpy(filePaths[i], fileName);
+        return i; // position in RAM
+    }
+    else
+        return -2; // out of memory error
 }
 
 int countTotalPages(FILE *f)
@@ -53,20 +86,37 @@ int countTotalPages(FILE *f)
     return ceiling((float)lines / 4);
 }
 
-
 FILE *findPage(int pageNumber, FILE *f)
 {
     FILE *fp2 = fdopen(dup(fileno(f)), "r");
     int counter = 0;
 
     char buf[999];
-    while (counter < 4 * pageNumber - 1)
+    while (counter < 4 * pageNumber)
     {
         fgets(buf, sizeof(buf), fp2);
         counter++;
     }
 
     return fp2;
+}
+
+PCB *myinit(FILE *p, char *fileName)
+{
+    PCB *pcb;
+    int result = 0; // TODO: remove?
+
+    result = addToFilePaths(fileName);
+    FILE *f = fopen(fileName, "r");
+
+    pcb = makePCB(f, result);
+    if (pcb != NULL)
+    {
+        addToReady(pcb);
+        return pcb;
+    }
+
+    return NULL;
 }
 
 int findFrame(FILE *page)
@@ -91,32 +141,45 @@ int findVictim(PCB *p)
     // return that frame
     int randomNumber = rand() % 10;
     FILE *victim;
-    int belong = 0;
-    do {
+    int belong;
+    do
+    {
         belong = 0;
-        for(int i = 0; i < 10 && !belong; i++) {
-            if(p->pageTable[i] == randomNumber) belong = 1;
+        for (int i = 0; i < 10 && !belong; i++)
+        {
+            if (p->pageTable[i] == randomNumber)
+                belong = 1;
         }
-        if (belong) randomNumber = (randomNumber + 1) % 10;
-    } while(belong);
+        if (belong)
+            randomNumber = (randomNumber + 1) % 10;
+    } while (belong);
     return randomNumber;
 }
 
-int updateFrame(int frameNumber, int victimFrame, FILE *page) {
-    if (frameNumber == -1) ram[victimFrame] = page;
-    else ram[frameNumber] = page;
-    return 1;
+int updateFrame(int frameNumber, int victimFrame, FILE *page)
+{
+    if (frameNumber == -1)
+        ram[victimFrame] = page;
+    else
+        ram[frameNumber] = page;
+    return 0;
 }
 
-int updatePageTable(PCB *p, int pageNumber, int frameNumber, int victimFrame) {
-    if (frameNumber == -1) p->pageTable[pageNumber ] = victimFrame;
-    else p->pageTable[pageNumber] = frameNumber;
-    return 1;
+int updatePageTable(PCB *p, int pageNumber, int frameNumber, int victimFrame)
+{
+    if (frameNumber == -1)
+        p->pageTable[pageNumber] = victimFrame;
+    else
+        p->pageTable[pageNumber] = frameNumber;
+    return 0;
 }
-
 
 int launcher(FILE *p, char *filename)
 {
+    if (p == NULL)
+        return -1;
+
+    int result;
     int pos;
     char ch;
 
@@ -146,8 +209,40 @@ int launcher(FILE *p, char *filename)
     int totalPages = countTotalPages(f);
     printf("%d pages\n", totalPages);
 
+    // PCB *pcb;
+
+    // if (result>=0) {
+    // 	pcb = makePCB(p,result);
+    // 	if (pcb != NULL) {
+    // 		addToReady(pcb);
+    // 		return 1;
+    // 	}
+    // }
+    FILE *fff = fopen(path, "r");
+
+    PCB *pcb = myinit(fff, path);
+    if (pcb == NULL)
+    {
+        return -1; // error
+    }
+
+    // load first 2 pages to ram
+    for (int i = 0; i < 2 && i < totalPages; i++)
+    {
+        FILE *ff = fopen(path, "r");
+        FILE *page = findPage(i, ff);
+        for (int j = 0; j < 10; j++)
+        {
+            if (ram[j] == NULL)
+            {
+                updateFrame(j, 0, page);
+                updatePageTable(pcb, i, j, findVictim(pcb));
+                break;
+            }
+        }
+    }
+
     FILE *ff = fopen(path, "r");
-    FILE *pt = findPage(2, ff);
 
     // char a[100];
     // fgets(a, sizeof(a), pt);

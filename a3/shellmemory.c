@@ -1,4 +1,5 @@
 #include<stdlib.h>
+#include <stdio.h>
 #include<string.h>
 #include "shellmemory.h"
 
@@ -48,6 +49,7 @@ void add(char *var, char *value) {
 			memoryTail = temp;
 		}
 	}
+	printf("DEBUG: %s\n", temp->value);
 }
 
 char *get(char *var) {

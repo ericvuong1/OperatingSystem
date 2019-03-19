@@ -1,9 +1,10 @@
 #include <stdio.h>
+#include "kernel.h"
+#include "memorymanager.h"
 
 // Global data structures representing hardware
 //
 
-FILE *ram[10];
 
 // Data structure management functions
 //
@@ -12,6 +13,7 @@ void initRAM() {
 	int i;
 
 	for(i=0; i<10; i++) ram[i] = NULL;
+	initFilePaths();
 }
 
 int addToRAM(FILE *p) {
@@ -27,6 +29,16 @@ int addToRAM(FILE *p) {
 	}
 	else
 		return -2; // out of memory error
+}
+
+void debugRAM() {
+	for(int i = 0; i < 10; i++) {
+		if(ram[i] == NULL) {
+			printf(" x ");
+		} else {
+			printf(" o ");
+		}
+	}printf("\n");
 }
 
 void clearRAM(int startAddressRAM) {
