@@ -1,6 +1,7 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include "pcb.h"
+#include "memorymanager.c"
 
 // Global data structures
 //
@@ -31,6 +32,9 @@ PCB *makePCB(FILE *p, int startAddressRAM) {
 	pcb->PC    = p;
 	pcb->start = startAddressRAM;
 	pcb->next  = NULL;
+	pcb->PC_page = 0;
+	pcb->PC_offset = 0;
+	pcb->pages_max = countTotalPages(p);
 
 	return pcb;
 }

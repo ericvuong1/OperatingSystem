@@ -46,6 +46,11 @@ void scheduler() {
 			setCPU(pcb->PC);
 			result = runCPU(2);
 
+			if (result == 1) {
+				pcb->PC_page = pcb->PC_page++;
+				
+			}
+
 			if (result == 99) terminate(pcb);
 			else addToReady(pcb);
 		} 	

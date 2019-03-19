@@ -9,6 +9,8 @@ struct CPU {
 	FILE *IP;
 	char IR[1000];
 	int quanta;
+
+	int offset;
 } cpu;
 
 void initCPU() {
@@ -39,6 +41,13 @@ int runCPU(int quanta) {
 		if (result != 0) return result;
 
 		cpu.quanta--;
+
+		cpu.offset = cpu.offset + 1;
+
+		if (cpu.offset == 4) {
+			cpu.offset = 0;
+			return 1; //page fault happens
+		}
 	}	
 
 	return 0; // no errors
