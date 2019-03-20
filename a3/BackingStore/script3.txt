@@ -1,3 +1,0 @@
-set z 1
-set z 2
-set z 3

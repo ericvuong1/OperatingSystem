@@ -59,30 +59,32 @@ int addToFilePaths(char *fileName)
     if (i < 10)
     {
         strcpy(filePaths[i], fileName);
-        return i; // position in RAM
+        return i; // position in memory 
     }
     else
         return -2; // out of memory error
 }
 
-int countTotalPages(FILE *f)
-{
-    char ch;
+int countTotalPages(FILE *f) {
     int lines = 0;
+    char buffer[1000];
+    char *a;
 
-    while (!feof(f))
-    {
-        ch = fgetc(f);
-        if (ch == '\n')
-            lines++;
-    }
-    if (lines == 0)
-    {
-        return 0;
+    fgets(buffer,999,f);
+    lines = 1;
+    //count number of \n for lines
+    while (!feof(f)) {
+        a = fgets(buffer,999,f); 
+        if (a != NULL) {
+            lines ++;
+        }
     }
 
     fclose(f);
-    return ceiling((float)lines / 4);
+    printf("%d lines\n", lines);
+    //4 lines per pages (take the ceiling if needed)
+    return ceiling((float) lines / 4);
+    
 }
 
 FILE *findPage(int pageNumber, FILE *f)

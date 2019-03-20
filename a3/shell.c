@@ -107,7 +107,7 @@ int shell() {
 	printf("Welcome to the Eric Vuong shell!\n");
 	printf("Version 3.0 Created March 2019\n");
 
-	while(!done) {
+	while(!done && !feof(stdin)) {
 		printf("$ ");
 		fgets(buffer,999, stdin);
 
