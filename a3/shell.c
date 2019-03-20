@@ -104,8 +104,8 @@ int shell() {
 
 	initShellMemory();
 
-	printf("Welcome to the JV shell!\n");
-	printf("Version 1.0 Created January 2019\n");
+	printf("Welcome to the Eric Vuong shell!\n");
+	printf("Version 3.0 Created March 2019\n");
 
 	while(!done) {
 		printf("$ ");

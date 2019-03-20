@@ -2,7 +2,6 @@
 #include<stdio.h>
 #include "pcb.h"
 #include "memorymanager.h"
-#include "helper.h"
 
 // Global data structures
 //
@@ -23,7 +22,7 @@ void printPCB() {
 }
 
 PCB *makePCB(FILE *p, int startAddressRAM) {
-	debug("Setting up PCB...");
+	printf("DEBUG: Setting up PCB\n");
 	PCB *pcb;
 
 	if (p == NULL) return NULL;

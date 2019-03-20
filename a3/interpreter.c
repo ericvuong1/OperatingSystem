@@ -6,7 +6,6 @@
 #include "shell.h"
 #include "kernel.h"
 #include "memorymanager.h"
-#include "helper.h"
 
 int run(char *filename) {
 	FILE *ptr;
@@ -63,7 +62,7 @@ int exec(char *file1, char *file2, char *file3) {
 	}
 
 	if (result > 0) {
-		debug("Calling scheduler"); 
+		printf("Calling scheduler\n"); 
 		scheduler();
 	}
 

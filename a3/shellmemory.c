@@ -49,7 +49,7 @@ void add(char *var, char *value) {
 			memoryTail = temp;
 		}
 	}
-	printf("DEBUG: %s\n", temp->value);
+	// printf("DEBUG: set %s to %s\n", temp->var, temp->value);
 }
 
 char *get(char *var) {

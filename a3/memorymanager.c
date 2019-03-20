@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "helper.h"
 #include "pcb.h"
 #include "ram.h"
 #include "memorymanager.h"
@@ -20,7 +19,6 @@ int updatePageTable(PCB *p, int pageNumber, int frameNumber, int victimFrame);
 char *concat(const char *s1, const char *s2)
 {
     char *result = malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator
-    // in real code you would check for errors in malloc here
     strcpy(result, s1);
     strcat(result, s2);
     return result;
@@ -55,8 +53,9 @@ int addToFilePaths(char *fileName)
     if (fileName == NULL)
         return -1; // error
 
-    for (i = 0; i < 10 && filePaths[i] != NULL; i++); // find next available space
-    filePaths[i] = (char *)malloc(strlen(fileName)*sizeof(char));
+    for (i = 0; i < 10 && filePaths[i] != NULL; i++)
+        ; // find next available space
+    filePaths[i] = (char *)malloc(strlen(fileName) * sizeof(char));
     if (i < 10)
     {
         strcpy(filePaths[i], fileName);
@@ -104,7 +103,7 @@ FILE *findPage(int pageNumber, FILE *f)
 PCB *myinit(FILE *p, char *fileName)
 {
     PCB *pcb;
-    int result = 0; // TODO: remove?
+    int result; // TODO: remove?
 
     result = addToFilePaths(fileName);
     FILE *f = fopen(fileName, "r");
@@ -184,7 +183,6 @@ int launcher(FILE *p, char *filename)
     char ch;
 
     char *path = concat("./BackingStore/", filename);
-    // debug("concat worked");
 
     // 1. Copy the entire file into the backing store.
     FILE *file = fopen(path, "w");
@@ -193,8 +191,6 @@ int launcher(FILE *p, char *filename)
     fseek(p, 0L, SEEK_SET);
     while (pos--)
     {
-        // debug("Wrote stuff");
-        // printf("%c\n", ch);
         ch = fgetc(p);
         fputc(ch, file);
     }
@@ -209,15 +205,6 @@ int launcher(FILE *p, char *filename)
     int totalPages = countTotalPages(f);
     printf("%d pages\n", totalPages);
 
-    // PCB *pcb;
-
-    // if (result>=0) {
-    // 	pcb = makePCB(p,result);
-    // 	if (pcb != NULL) {
-    // 		addToReady(pcb);
-    // 		return 1;
-    // 	}
-    // }
     FILE *fff = fopen(path, "r");
 
     PCB *pcb = myinit(fff, path);
@@ -243,10 +230,6 @@ int launcher(FILE *p, char *filename)
     }
 
     FILE *ff = fopen(path, "r");
-
-    // char a[100];
-    // fgets(a, sizeof(a), pt);
-    // printf("%s\n", a);
 
     return 1;
 }
