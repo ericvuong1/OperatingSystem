@@ -1,1 +1,1 @@
-exec script.txt
+exec script.txt script2.txt script3.txt
