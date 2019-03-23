@@ -5,6 +5,7 @@
 
 #include "pcb.h"
 #include "ram.h"
+#include "kernel.h"
 #include "memorymanager.h"
 
 int launcher(FILE *p, char *filename);
@@ -59,32 +60,31 @@ int addToFilePaths(char *fileName)
     if (i < 10)
     {
         strcpy(filePaths[i], fileName);
-        return i; // position in memory 
+        return i; // position in memory
     }
     else
         return -2; // out of memory error
 }
 
-int countTotalPages(FILE *f) {
+int countTotalPages(FILE *f)
+{
     int lines = 0;
     char buffer[1000];
     char *a;
 
-    fgets(buffer,999,f);
+    fgets(buffer, 999, f);
     lines = 1;
-    //count number of \n for lines
-    while (!feof(f)) {
-        a = fgets(buffer,999,f); 
-        if (a != NULL) {
-            lines ++;
+    while (!feof(f))
+    {
+        a = fgets(buffer, 999, f);
+        if (a != NULL)
+        {
+            lines++;
         }
     }
 
     fclose(f);
-    printf("%d lines\n", lines);
-    //4 lines per pages (take the ceiling if needed)
-    return ceiling((float) lines / 4);
-    
+    return ceiling((float)lines / 4);
 }
 
 FILE *findPage(int pageNumber, FILE *f)
@@ -105,7 +105,7 @@ FILE *findPage(int pageNumber, FILE *f)
 PCB *myinit(FILE *p, char *fileName)
 {
     PCB *pcb;
-    int result; // TODO: remove?
+    int result; 
 
     result = addToFilePaths(fileName);
     FILE *f = fopen(fileName, "r");
@@ -129,6 +129,15 @@ int findFrame(FILE *page)
     for (int i = 0; i < 10; i++)
     {
         if (page == ram[i])
+        {
+            return i;
+        }
+    }
+
+    // find hole in ram
+    for (int i = 0; i < 10; i++)
+    {
+        if (ram[i] == NULL)
         {
             return i;
         }
@@ -205,7 +214,6 @@ int launcher(FILE *p, char *filename)
     FILE *f = fopen(path, "r");
 
     int totalPages = countTotalPages(f);
-    printf("%d pages\n", totalPages);
 
     FILE *fff = fopen(path, "r");
 

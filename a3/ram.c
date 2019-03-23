@@ -5,25 +5,30 @@
 // Global data structures representing hardware
 //
 
-
 // Data structure management functions
 //
 
-void initRAM() {
+void initRAM()
+{
 	int i;
 
-	for(i=0; i<10; i++) ram[i] = NULL;
+	for (i = 0; i < 10; i++)
+		ram[i] = NULL;
 	initFilePaths();
 }
 
-int addToRAM(FILE *p) {
+int addToRAM(FILE *p)
+{
 	int i;
 
-	if (p == NULL) return -1; // error 
-	
-	for(i=0; i<10 && ram[i]!=NULL; i++); // find next available space
+	if (p == NULL)
+		return -1; // error
 
-	if (i<10) {
+	for (i = 0; i < 10 && ram[i] != NULL; i++)
+		; // find next available space
+
+	if (i < 10)
+	{
 		ram[i] = p;
 		return i; // position in RAM
 	}
@@ -31,17 +36,23 @@ int addToRAM(FILE *p) {
 		return -2; // out of memory error
 }
 
-void debugRAM() {
-	for(int i = 0; i < 10; i++) {
-		if(ram[i] == NULL) {
-			printf(" x ");
-		} else {
-			printf(" o ");
+void debugRAM()
+{
+	for (int i = 0; i < 10; i++)
+	{
+		if (ram[i] == NULL)
+		{
+			printf(" x "); // used 
 		}
-	}printf("\n");
+		else
+		{
+			printf(" o "); // hole
+		}
+	}
+	printf("\n");
 }
 
-void clearRAM(int startAddressRAM) {
+void clearRAM(int startAddressRAM)
+{
 	ram[startAddressRAM] = NULL;
 }
-

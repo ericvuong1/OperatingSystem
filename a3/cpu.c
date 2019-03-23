@@ -45,7 +45,7 @@ int runCPU(int quanta) {
 
 		if (p == NULL || feof(cpu.IP)) return 99; // end of program
 
-		printf(">>>%s\n",cpu.IR); // debug code
+		// printf(">>>%s\n",cpu.IR); // debug code
 
 		result = prompt(cpu.IR);
 		if (result != 0) return result;

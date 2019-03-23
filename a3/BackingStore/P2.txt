@@ -20,3 +20,4 @@ set y 19
 set y 20
 set y 21
 set y 22
+print y

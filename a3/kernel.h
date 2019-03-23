@@ -1,4 +1,3 @@
-int myinit(FILE *p);
 void scheduler();
-// publci variables
+// public variables
 extern FILE *ram[10];

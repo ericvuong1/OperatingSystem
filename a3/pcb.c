@@ -4,7 +4,6 @@
 #include "memorymanager.h"
 
 // Global data structures
-//
 
 PCB *head = NULL, *tail=NULL;
 
@@ -22,7 +21,6 @@ void printPCB() {
 }
 
 PCB *makePCB(FILE *p, int startAddressRAM) {
-	printf("DEBUG: Setting up PCB\n");
 	PCB *pcb;
 
 	if (p == NULL) return NULL;
@@ -39,7 +37,6 @@ PCB *makePCB(FILE *p, int startAddressRAM) {
 	for(int i = 0; i < 10; i++) {
 		pcb->pageTable[i] = -1; // invalid
 	}
-	printf("DEBUG: max pages: %d\n", pcb->pages_max);
 
 	return pcb;
 }

@@ -131,7 +131,6 @@ int shell()
 		char *ptr;
 		printf("$ ");
 		if (fgets(buffer, 999, stdin)) {
-			printf("buffer: %s\n", buffer);
 			result = prompt(buffer);
 		}
 

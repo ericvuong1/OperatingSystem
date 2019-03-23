@@ -16,23 +16,25 @@ void terminate(PCB *p)
 	free(p);
 }
 
-int pageFault(PCB *pcb)
+// Generates the page fault and properly assigns addresses
+int taskSwitchPageFault(PCB *pcb)
 {
-	printf("DEBUG: Page Fault Requested\n");
+	// Page Fault
+	// printf("DEBUG: Page Fault Requested\n");
 	pcb->PC_page++;
-	printf("DEBUG: Looking for page: %d\n", pcb->PC_page);
+	// printf("DEBUG: Looking for page: %d\n", pcb->PC_page);
 	int PC_page = pcb->PC_page;
 
 	if (PC_page > pcb->pages_max - 1 || PC_page > 9)
 	{
-		printf("DEBUG: %s program finished\n", filePaths[pcb->start]);
+		// printf("DEBUG: %s program finished\n", filePaths[pcb->start]);
 		return 99;
 	} // program finished
 
 	else if (pcb->pageTable[PC_page] != -1)
 	{ // valid, we have a frame number
 		int frame = pcb->pageTable[PC_page];
-		printf("DEBUG: Frame valid, is in RAM, Frame: %d\n", frame);
+		// printf("DEBUG: Frame valid, is in RAM, Frame: %d\n", frame);
 		FILE *PC = ram[frame];
 		pcb->PC_offset = 0;
 	}
@@ -40,42 +42,19 @@ int pageFault(PCB *pcb)
 	{ // not valid
 		FILE *f = fopen(filePaths[pcb->start], "r");
 		FILE *page = findPage(PC_page, f);
-		int frameNumber = findFrame(page);
-
-		// find hole in ram
-		if (frameNumber == -1)
-		{
-			printf("DEBUG: Frame Not found, looking for hole\n");
-			for (int i = 0; i < 10; i++)
-			{
-				if (ram[i] == NULL)
-				{
-					frameNumber = i;
-					printf("DEBUG: Hole found, Frame : %d\n", frameNumber);
-					break;
-				}
-			}
-		}
+		int frameIndex = findFrame(page);
 
 		int victimFrame = 0;
-		if (frameNumber == -1)
-		{
-			printf("DEBUG: No holes found, finding victim frame\n");
+		if (frameIndex == -1)
 			victimFrame = findVictim(pcb);
-			printf("DEBUG: we have a victim Frame %d\n", victimFrame);
-		}
-		else
-		{
-			printf("DEBUG: Frame found! Frame: %d\n", frameNumber);
-		}
 
-		updateFrame(frameNumber, victimFrame, page);
-		updatePageTable(pcb, PC_page, frameNumber, victimFrame);
+		updateFrame(frameIndex, victimFrame, page);
+		updatePageTable(pcb, PC_page, frameIndex, victimFrame);
 
-		if (frameNumber == -1)
+		if (frameIndex == -1)
 			pcb->PC = ram[victimFrame];
 		else
-			pcb->PC = ram[frameNumber];
+			pcb->PC = ram[frameIndex];
 
 		pcb->PC_offset = 0;
 	}
@@ -93,7 +72,7 @@ void scheduler()
 	// execute the processes
 	while (getHead() != NULL)
 	{
-		debugRAM();
+		// debugRAM();
 		// printPCB(); // for debugging
 
 		pcb = getFromReady();
@@ -113,7 +92,7 @@ void scheduler()
 
 			if (result == 1)
 			{ // page fault occurs
-				result = pageFault(pcb);
+				result = taskSwitchPageFault(pcb);
 			}
 
 			if (result == 99)
@@ -132,9 +111,6 @@ void prepareBackingStore()
 
 void boot()
 {
-	printf("DEBUG: Booting PC...\n");
-	printf("DEBUG: Initialize RAM array to NULL\n");
-	printf("DEBUG: Preparing Backing Store\n");
 	for (int i = 0; i < 10; i++)
 	{
 		ram[i] = NULL;

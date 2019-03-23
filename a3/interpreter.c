@@ -48,21 +48,20 @@ int exec(char *file1, char *file2, char *file3) {
 	if (file1!=NULL) {
 		p1 = fopen(file1,"rt");
 		// result = myinit(p1);
-		result = launcher(p1, file1);
+		result = launcher(p1, "P1.txt");
 	}
 	if (file2!=NULL) {
 		p2 = fopen(file2,"rt");
 		// result = myinit(p2);
-		result = launcher(p2, file2);
+		result = launcher(p2, "P2.txt");
 	}
 	if (file3!=NULL) {
 		p3 = fopen(file3,"rt");
 		// result = myinit(p3);
-		result = launcher(p3, file3);
+		result = launcher(p3, "P3.txt");
 	}
 
 	if (result > 0) {
-		printf("Calling scheduler\n"); 
 		scheduler();
 	}
 
