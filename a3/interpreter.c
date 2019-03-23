@@ -93,7 +93,7 @@ int interpreter(char buf0[], char buf1[], char buf2[], char buf3[]) {
 	else if (strcmp(buf0,"print")==0) {
 		if (strlen(buf1)<1) return 2; // print error
 
-		printf("%s\n", get(buf1));
+		printf("%s \n", get(buf1));
 	}
 	else if (strcmp(buf0,"run")==0) {
 		if (strlen(buf1)<1) return 3; // run error
