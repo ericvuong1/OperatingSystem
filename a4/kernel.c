@@ -118,7 +118,9 @@ void boot()
 	}
 	prepareBackingStore();
 	initIO();
-	partition("something", 5, 1);
+	partition("something", 5, 2);
+	mount("something");
+	openfile("HI");
 }
 
 int main()

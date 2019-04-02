@@ -23,6 +23,10 @@ struct FAT {
     int current_location;
 } fat[20];
 
+struct FILE_DS {
+    int fatIndex;
+} files[5];
+
 char *block_buffer;
 FILE *fp[5];
 
@@ -41,7 +45,6 @@ void initIO() {
 
     block_buffer = NULL;
     for(int i=0;i<5;i++) fp[i]=NULL;
-    // for(int i=0;i<20;i++) fat[i]=NULL; ??
 }
 
 int partition(char *name, int blocksize, int totalblocks) {
@@ -52,11 +55,98 @@ int partition(char *name, int blocksize, int totalblocks) {
     int totalFreeBlockList = totalblocks * blocksize;
     // append partition data area 
     char *freeBlockList = "";
+    fprintf(p, "%d\n", blocksize);
+    fprintf(p, "%d\n", totalblocks);
     for(int i=0;i<totalFreeBlockList;i++) freeBlockList = concatStrings(freeBlockList, "0");
     // TODO: write information from struct partition?
     // TODO: write information from FAT?
-    fprintf(p, "%s", freeBlockList);
+    for(int i=0;i<20;i++){
+        fprintf(p, "NULL\n");
+        fprintf(p, "NULL\n");
+        fprintf(p, "NULL\n");
+        fprintf(p, "NULL\n");
+    }
+    fprintf(p, "%s\n", freeBlockList);
     fclose(p);
 
     return 1;
+}
+// TODO: not done
+int mount(char *name) {
+    FILE *p = fopen(concatStrings("./PARTITION/", name), "r");
+    char buf[100];
+
+    fgets(buf, 100, p);
+    partit.block_size = atoi(buf);
+
+    fgets(buf, 100, p);
+    partit.total_blocks = atoi(buf);
+    for(int i=0;i<20;i++){
+        fgets(buf, 100,p);
+        if(strcmp("NULL\n", buf)==0){ // skip if null
+            fgets(buf,100,p);
+            fgets(buf,100,p);
+            fgets(buf,100,p);
+            fat[i].current_location = -1;
+            continue;
+        }
+        fat[i].filename = buf;
+        fgets(buf, 100,p);
+        fat[i].file_length = atoi(buf);
+        fgets(buf, 100, p);
+        for(int j=0;j<10;j++){
+            fat[i].blockPtrs[j] = buf[j];
+        }
+        fgets(buf, 100, p);
+        fat[i].current_location = atoi(buf);
+    };
+
+    block_buffer = malloc(partit.block_size);
+
+    // printf("%d\n", partit.block_size);
+    // printf("%d\n", partit.total_blocks);
+    
+    return 1;
+}
+
+int openfile(char *name) {
+    // search in fat[]
+    for(int i=0;i<20;i++){
+        if(fat[i].filename == NULL) continue; // no filename 
+        if(strcmp(fat[i].filename, name)==0) {
+            for(int j=0;j<5;j++) {
+                if (fp[j] == NULL) {
+                    // FILE *p = fopen("./PARTITION/")
+                    files[j].fatIndex = i;
+                    return i;
+                }
+            }
+            // no available fp[]
+            return -1;
+        }
+    }
+    int newEntry = 0;
+    for(int i=0;i<20;i++){
+        if(fat[i].filename == NULL) {
+            printf("DEBUG: Free FAT at %d\n", i);
+            return i;
+        }
+    }
+    // no space in fat
+    return -1;
+}
+
+int readBlock(int file) {
+    if (file == -1) return -1; // error
+
+    int fatIndex = file;
+    int pointer = -1;
+    for(int i=0;i<5;i++) {
+        if(files[i].fatIndex == fatIndex) {
+            pointer = i;
+        }
+    }
+    if (pointer == -1) return -1;
+    int offset = fat[fatIndex].current_location; // TODO: ??
+
 }
