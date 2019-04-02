@@ -1,0 +1,6 @@
+print x
+print a
+print b
+set x 55
+print x
+quit
