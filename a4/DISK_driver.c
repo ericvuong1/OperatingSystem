@@ -30,6 +30,8 @@ struct FILE_DS {
 char *block_buffer;
 FILE *fp[5];
 
+char *partitionPath;
+
 // Helper function to concat strings
 char *concatStrings(const char *s1, const char *s2)
 {
@@ -48,27 +50,35 @@ void initIO() {
 }
 
 int partition(char *name, int blocksize, int totalblocks) {
+    printf("DEBUG: Partitioning\n");
     system("mkdir PARTITION");
-    FILE * p = fopen(concatStrings("./PARTITION/", name), "w");
-    partit.total_blocks = totalblocks;
-    partit.block_size = blocksize;
+    char *pathName = concatStrings("./PARTITION/", name);
+    partitionPath = pathName;
+
+    FILE * p = fopen(pathName, "w");
+
     int totalFreeBlockList = totalblocks * blocksize;
+    // PARTITION
     // append partition data area 
-    char *freeBlockList = "";
+    printf("Block Size: %d\n", blocksize);
+    printf("Total Blocks: %d\n", totalblocks);
     fprintf(p, "%d\n", blocksize);
     fprintf(p, "%d\n", totalblocks);
-    for(int i=0;i<totalFreeBlockList;i++) freeBlockList = concatStrings(freeBlockList, "0");
-    // TODO: write information from struct partition?
-    // TODO: write information from FAT?
+
+    // EMPTY FAT
     for(int i=0;i<20;i++){
         fprintf(p, "NULL\n");
         fprintf(p, "NULL\n");
-        fprintf(p, "NULL\n");
+        for(int j=0;j<10;j++) fprintf(p, "-1\n");
         fprintf(p, "NULL\n");
     }
-    fprintf(p, "%s\n", freeBlockList);
-    fclose(p);
 
+    // DATA AREA
+    char *dataArea= "";
+    for(int i=0;i<totalFreeBlockList;i++) dataArea= concatStrings(dataArea, "0");
+    fprintf(p, "%s\n", dataArea);
+
+    fclose(p);
     return 1;
 }
 // TODO: not done
@@ -82,22 +92,28 @@ int mount(char *name) {
     fgets(buf, 100, p);
     partit.total_blocks = atoi(buf);
     for(int i=0;i<20;i++){
-        fgets(buf, 100,p);
+        fgets(buf, 100,p); // filename
         if(strcmp("NULL\n", buf)==0){ // skip if null
-            fgets(buf,100,p);
-            fgets(buf,100,p);
+            printf("DEBUG: empty FAT\n");
+            fgets(buf,100,p); //file_length
+            for(int j=0;j<10;j++) {
+                fgets(buf,100,p); //blockPtrs
+                fat[i].blockPtrs[j] = atoi(buf);
+                // printf("DEBUG: blockPtr[%d]: %d\n", j, fat[i].blockPtrs[j]);
+            }
             fgets(buf,100,p);
             fat[i].current_location = -1;
             continue;
         }
         fat[i].filename = buf;
-        fgets(buf, 100,p);
+        fgets(buf,100,p);
         fat[i].file_length = atoi(buf);
-        fgets(buf, 100, p);
+        fgets(buf,100,p);
         for(int j=0;j<10;j++){
-            fat[i].blockPtrs[j] = buf[j];
+            fgets(buf,100,p);
+            fat[i].blockPtrs[j] = buf;
         }
-        fgets(buf, 100, p);
+        fgets(buf,100,p);
         fat[i].current_location = atoi(buf);
     };
 
@@ -109,15 +125,29 @@ int mount(char *name) {
     return 1;
 }
 
+// helper function that returns where data area is in the partition file
+FILE *getDataArea() {
+    char buf[100];
+    FILE *p = fopen(partitionPath, "r");
+    for(int i=0;i<(2+20*13);i++) fgets(buf, 100, p);
+    return p;
+} 
+
 int openfile(char *name) {
     // search in fat[]
     for(int i=0;i<20;i++){
         if(fat[i].filename == NULL) continue; // no filename 
-        if(strcmp(fat[i].filename, name)==0) {
+        if(strcmp(fat[i].filename, name)==0) { //file found
             for(int j=0;j<5;j++) {
                 if (fp[j] == NULL) {
-                    // FILE *p = fopen("./PARTITION/")
-                    files[j].fatIndex = i;
+                    //TODO: get this working
+                    FILE *p = getDataArea();
+                    fseek(p, fat[i].blockPtrs[0]*partit.block_size, SEEK_SET);
+                    char buf[100];
+                    fgets(buf, 100, p);
+                    printf("DEBUG: %s\n", buf);
+                    // TODO: fseek to the right place?
+                    // files[j].fatIndex = i; TODO: fix this
                     return i;
                 }
             }
@@ -147,6 +177,10 @@ int readBlock(int file) {
         }
     }
     if (pointer == -1) return -1;
-    int offset = fat[fatIndex].current_location; // TODO: ??
+    fat[fatIndex].current_location; // TODO: ??
+    FILE *p = fp[pointer];
+}
+
+int writeBlock(int file, char *data) {
 
 }
