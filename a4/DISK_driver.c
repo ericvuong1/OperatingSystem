@@ -10,6 +10,15 @@ char *returnBlock(); // return block as string from buffer_block
 int writeBlock(int file, char *data); // sensitive to block size, write data to disk at blockID
 void writeToDisk();
 void loadFromDisk(char *name);
+char *appendCharToString(char *str, char c) {
+
+    size_t len = strlen(str);
+    char *str2 = malloc(len + 1 + 1 ); /* one for extra char, one for trailing zero */
+    strcpy(str2, str);
+    str2[len] = c;
+    str2[len + 1] = '\0';
+    return str2;
+}
 
 
 void writeToDiskFAT(int fatIndex);
@@ -286,9 +295,46 @@ int readBlock(int file) {
     if (pointer == -1) return -1;
     // fat[fatIndex].current_location; // TODO: ??
     FILE *p = fp[pointer];
+    // char *str = "";
+    // int counter = partit.block_size;
+    // while(counter > 0) {
+    //     appendCharToString(str, fgetc(p));
+    //     counter--;
+    // }
+    // block_buffer =  str;
     return 1;
 }
 
 int writeBlock(int file, char *data) {
+    if (file == -1) return -1; // error
+
+    int fatIndex = file;
+    int pointer = -1;
+    for(int i=0;i<5;i++) {
+        if(files[i].fatIndex == fatIndex) {
+            pointer = i;
+        }
+    }
+    if (pointer == -1) return -1;
+    // fat[fatIndex].current_location; // TODO: ??
+    FILE *p = fp[pointer];
+    int length = strlen(data);
+    int lastBlock = length / partit.block_size;
+    if (lastBlock > partit.total_blocks) {
+        printf("That's too long man!\n");
+        return -1;
+    }
+    int blockCounter = 0;
+    while (blockCounter < lastBlock) {
+        int counter = partit.block_size;
+        while(counter > 0) {
+            fseek(p, 0, SEEK_CUR);
+            fputc(data, p);
+            data = data + 1;
+            counter--;
+        }        
+    }
+
     return 1;
 }
+

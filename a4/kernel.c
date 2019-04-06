@@ -121,6 +121,7 @@ void boot()
 	partition("something.txt", 5, 10);
 	mount("something.txt");
 	openfile("HI");
+	// writeBlock("HI", "hi");
 }
 
 int main()
