@@ -118,8 +118,8 @@ void boot()
 	}
 	prepareBackingStore();
 	initIO();
-	partition("something", 5, 10);
-	mount("something");
+	partition("something.txt", 5, 10);
+	mount("something.txt");
 	openfile("HI");
 }
 
@@ -131,6 +131,7 @@ int main()
 
 	initRAM();
 	initCPU();
+
 
 	result = shell();
 
