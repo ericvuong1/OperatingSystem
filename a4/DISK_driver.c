@@ -8,8 +8,64 @@ int openfile(char *name); // find filename or creates file if it does not exist,
 int readBlock(int file); // using file FAT index number, load buffer with data from blockID
 char *returnBlock(); // return block as string from buffer_block
 int writeBlock(int file, char *data); // sensitive to block size, write data to disk at blockID
+FILE *getPtr(int ptr);
+
+
 void writeToDisk();
 void loadFromDisk(char *name);
+char *appendCharToString(char *str, char c);
+int findSpace();
+void writeToDiskFAT(int fatIndex);
+char *concatStrings(const char *s1, const char *s2);
+int myceil(float num);
+
+// variables
+ 
+struct PARTITION {
+    int total_blocks;
+    int block_size;
+} partit;
+
+struct FAT {
+    char *filename;
+    int file_length;
+    int blockPtrs[10];
+    int current_location;
+} fat[20];
+
+struct FILE_DS {
+    int fatIndex; 
+} files[5];
+
+char *block_buffer;
+FILE *fp[5];
+
+char *partitionPath;
+char *dataArea;
+
+
+int myceil(float num)
+{
+    int inum = (int)num;
+    if (num == (float)inum)
+    {
+        return inum;
+    }
+    return inum + 1;
+}
+
+int findSpace() {
+   FILE *p = getPtr(0); 
+   for(int i=0;i<partit.total_blocks;i++){
+       if(fgetc(p) == '0') {
+           return i;
+       }
+       for(int j=0;j<partit.block_size-1;j++) fgetc(p);
+   }
+   fclose(p);
+   return -1;
+}
+
 char *appendCharToString(char *str, char c) {
 
     size_t len = strlen(str);
@@ -19,10 +75,6 @@ char *appendCharToString(char *str, char c) {
     str2[len + 1] = '\0';
     return str2;
 }
-
-
-void writeToDiskFAT(int fatIndex);
-char *concatStrings(const char *s1, const char *s2);
 
 // https://stackoverflow.com/questions/190229/where-is-the-itoa-function-in-linux/190235
 char *my_itoa_buf(char *buf, size_t len, int num)
@@ -44,11 +96,6 @@ char *my_itoa_buf(char *buf, size_t len, int num)
 char *my_itoa(int num)
 { return my_itoa_buf(NULL, 0, num); }
 
-struct PARTITION {
-    int total_blocks;
-    int block_size;
-} partit;
-
 void writeLine(char *s, FILE *p) {
     fputs(s, p);
     while(fgetc(p) != '\n') { // new line
@@ -56,23 +103,6 @@ void writeLine(char *s, FILE *p) {
         fputc('\0', p);
     }
 }
-
-struct FAT {
-    char *filename;
-    int file_length;
-    int blockPtrs[10];
-    int current_location;
-} fat[20];
-
-struct FILE_DS {
-    int fatIndex;
-} files[5];
-
-char *block_buffer;
-FILE *fp[5];
-
-char *partitionPath;
-char *dataArea;
 
 // Helper function to concat strings
 char *concatStrings(const char *s1, const char *s2)
@@ -147,7 +177,7 @@ void initIO() {
     partit.total_blocks = 0;
 
     block_buffer = NULL;
-    for(int i=0;i<5;i++) fp[i]=NULL;
+    for(int i=0;i<5;i++) {fp[i]=NULL; files[i].fatIndex = -1;}
     for(int i=0;i<20;i++) {
         fat[i].current_location = -1;
         fat[i].file_length = -1;
@@ -209,29 +239,32 @@ int mount(char *name) {
 
 // helper function that returns where data area is in the partition file
 FILE *getPtr(int ptr) {
+    printf("DEBUG: inside getPtr\n");
     char buf[100];
-    FILE *p = fopen(partitionPath, "r");
+    FILE *p = fopen(partitionPath, "r+");
     for(int i=0;i<(2+20*13);i++) {
         fgets(buf, 100, p);
-        printf("%s\n", buf);
     }
-    for(int i=0;i<9*partit.block_size;i++) fgetc(p);
+    for(int i=0;i<ptr*partit.block_size;i++) fseek(p, 1, SEEK_CUR);
     return p;
 } 
 
 int openfile(char *name) {
+    printf("DEBUG: opening file %s\n", name);
     // search in fat[]
     for(int i=0;i<20;i++){
         if(fat[i].filename == NULL) continue; // no filename 
         if(strcmp(fat[i].filename, name)==0) { //file found
             for(int j=0;j<5;j++) {
                 if (fp[j] == NULL) {
+                    printf("DEBUG: found the filename %s, setting fp[%d]\n", name, j);
                     FILE *p = getPtr(fat[i].blockPtrs[0]); // get FIRST BLOCK
                     fp[j] = p;
                     return i;
                 }
             }
             // no available fp[]
+            printf("No available fp[]\n");
             return -1;
         }
     }
@@ -239,14 +272,10 @@ int openfile(char *name) {
     // new entry
     for(int i=0;i<20;i++){
         if(fat[i].filename == NULL) {
+            printf("DEBUG: new entry for %s\n", name);
             fat[i].filename = name;
-            // for(int j=0;j<10;j++) {
-            //     fat[i].blockPtrs[j] = 3;
-            // }
-            // fat[i].file_length = 5;
-            // fat[i].current_location = 8;
             writeToDiskFAT(i);
-            printf("DEBUG: BLOCK %d is free\n", i);
+            printf("DEBUG: FAT %d is free\n", i);
             return i;
         }
     }
@@ -308,31 +337,72 @@ int readBlock(int file) {
 int writeBlock(int file, char *data) {
     if (file == -1) return -1; // error
 
-    int fatIndex = file;
     int pointer = -1;
     for(int i=0;i<5;i++) {
-        if(files[i].fatIndex == fatIndex) {
+        printf("DEBUG checking files[%d] and has fatIndex %d\n", i, files[i].fatIndex);
+        printf("COLISS\n");
+        if(files[i].fatIndex == file) {
             pointer = i;
         }
     }
-    if (pointer == -1) return -1;
+    printf("DEBUG: attempt to write %s at file %d with pointer %d\n", data, file, pointer);
+    if (pointer == -1) {
+        printf("DEBUG: no pointer exists\n"); 
+
+        printf("DEBUG: finding an available fp[]\n");
+        for(int i=0;i<5;i++){
+            if (fp[i] == NULL) { 
+                files[i].fatIndex = file;
+                pointer = i;
+                break;
+            }
+        }
+        // no available fp to write
+        if (pointer == -1) return -1;
+    }
+
+
     // fat[fatIndex].current_location; // TODO: ??
     FILE *p = fp[pointer];
+
     int length = strlen(data);
-    int lastBlock = length / partit.block_size;
-    if (lastBlock > partit.total_blocks) {
-        printf("That's too long man!\n");
-        return -1;
-    }
+    int lastBlock = myceil((float) length / partit.block_size);
+    // if (lastBlock > partit.total_blocks) {
+    //     printf("That's too long man!\n");
+    //     return -1;
+    // }
     int blockCounter = 0;
+
+    int ptr;
+    ptr = fat[file].current_location;
+
+    if (ptr == -1) ptr = 0;
+
     while (blockCounter < lastBlock) {
+        printf("DEBUG: TRYING TO WRITE\n");
+        int blockNumber = fat[file].blockPtrs[ptr];
+        if (blockNumber == -1) blockNumber = findSpace(); // find available space
+        if (blockNumber == -1) {printf("DEBUG: no available space to write"); return -1;}
+        fat[file].blockPtrs[ptr] = blockNumber;
+
+        fp[pointer] = getPtr(blockNumber);
+
         int counter = partit.block_size;
         while(counter > 0) {
-            fseek(p, 0, SEEK_CUR);
-            fputc(data, p);
+            fseek(fp[pointer], 0, SEEK_CUR);
+            // fputc(*data, fp[pointer]);
+            fputc(*data, fp[pointer]);
+            length = length - 1;
+            if(length == 0) break; // done writing
             data = data + 1;
-            counter--;
-        }        
+            counter = counter - 1;
+            printf("WRITING\n");
+        }
+        ptr = ptr + 1;
+        fat[file].current_location = ptr;
+        blockCounter = blockCounter + 1;
+        writeToDiskFAT(file);
+        fclose(fp[pointer]);
     }
 
     return 1;

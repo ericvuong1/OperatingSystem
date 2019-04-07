@@ -118,10 +118,21 @@ void boot()
 	}
 	prepareBackingStore();
 	initIO();
-	partition("something.txt", 5, 10);
+	partition("something.txt", 4, 10);
 	mount("something.txt");
-	openfile("HI");
-	// writeBlock("HI", "hi");
+	int file = openfile("HI");
+	writeBlock(file, "hi is eric");
+	file = openfile("HO");
+	int result = writeBlock(file, "abcdefghij");
+	printf("DEBUG: result: %d\n", result);
+	file = openfile("HI");
+	writeBlock(file, "1234567");
+	// FILE *p = getPtr(0);
+	// fseek(p, 0, SEEK_CUR);
+	// fputc('a', p),
+	// char buf[100];
+	// fgets(buf, 100, p);
+	// printf("dEBUG: %s\n", buf);
 }
 
 int main()
