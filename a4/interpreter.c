@@ -6,6 +6,7 @@
 #include "shell.h"
 #include "kernel.h"
 #include "memorymanager.h"
+#include "DISK_driver.h"
 
 int run(char *filename) {
 	FILE *ptr;
@@ -105,6 +106,30 @@ int interpreter(char buf0[], char buf1[], char buf2[], char buf3[]) {
 		if (strlen(buf1)<1) return 5; // exec error
 
 		result = exec(buf1, buf2, buf3);
+	}
+	else if (strcmp(buf0, "Mount")==0) {
+		if (strlen(buf1)<1 || strlen(buf2)<1 || strlen(buf3)<1) return 6; // Mount error
+		int blockSize = atoi(buf2);
+		int blockLength = atoi(buf3);
+		if (blockSize == 0 || blockLength == 0) {
+			return 1; // mount error
+		}
+		result = partition(buf1, blockSize, blockLength);
+		if(!result) return 1;
+		result = mount(buf1);
+		if(result) result = 0;
+	}
+	else if (strcmp(buf0, "Write")==0) {
+		if(strlen(buf1)<1 || strlen(buf2)<1) return 7; // Write error
+		int file = openfile(buf1);
+		result = writeBlock(file, buf2);
+		if(result) result = 0;
+	}
+	else if (strcmp(buf0, "Read")==0) {
+		if (strlen(buf1)<1 || strlen(buf2)<1) return 8; // Read error
+		int file = openfile(buf1);
+		add(strdup(buf2), strdup(readFile(file)));
+		result = 0;
 	}
 	else {
 		result = 98; // command does not exist

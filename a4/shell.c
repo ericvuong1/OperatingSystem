@@ -47,8 +47,15 @@ int parse(char buffer[], char arg0[], char arg1[], char arg2[], char arg3[])
 	// extract arg2
 
 	j = 0;
-
-	while (i < 1000 && buffer[i] != ' ' && buffer[i] != '\n' && buffer[i] != '\r')
+	if (buffer[i] == '[') {
+		i++;
+		while(buffer[i] != ']') {
+			arg2[j] = buffer[i];
+			j++;
+			i++;
+		}
+	}
+	else while (i < 1000 && buffer[i] != ' ' && buffer[i] != '\n' && buffer[i] != '\r')
 	{
 		arg2[j] = buffer[i];
 		j++;

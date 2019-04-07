@@ -118,25 +118,19 @@ void boot()
 	}
 	prepareBackingStore();
 	initIO();
-	partition("something.txt", 5, 10);
-	mount("something.txt");
-	int file = openfile("HI");
-	writeBlock(file, "12345678");
-	file = openfile("HO");
-	int result = writeBlock(file, "abcdefgh");
-	printf("DEBUG: result: %d\n", result);
-	file = openfile("HI");
-	writeBlock(file, "abcdefghijklmnopqrstuvyxuzzjd");
-	file = openfile("HO");
-	result = writeBlock(file, "1234");
-	file = openfile("HI");
-	printf("DEBUG: reading %s\n", readFile(file));	
-	// FILE *p = getPtr(0);
-	// fseek(p, 0, SEEK_CUR);
-	// fputc('a', p),
-	// char buf[100];
-	// fgets(buf, 100, p);
-	// printf("dEBUG: %s\n", buf);
+	// partition("something.txt", 5, 10);
+	// mount("something.txt");
+	// int file = openfile("HI");
+	// writeBlock(file, "12345678");
+	// file = openfile("HO");
+	// int result = writeBlock(file, "abcdefgh");
+	// printf("DEBUG: result: %d\n", result);
+	// file = openfile("HI");
+	// writeBlock(file, "abcdefghijklmnopqrstuvyxuzzjd");
+	// file = openfile("HO");
+	// result = writeBlock(file, "1234");
+	// file = openfile("HI");
+	// printf("DEBUG: reading %s\n", readFile(file));	
 }
 
 int main()
