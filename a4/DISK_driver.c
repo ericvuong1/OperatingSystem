@@ -18,6 +18,7 @@ int findSpace();
 void writeToDiskFAT(int fatIndex);
 char *concatStrings(const char *s1, const char *s2);
 int myceil(float num);
+void clearBlock(int blockNumber);
 
 // variables
  
@@ -311,6 +312,16 @@ void writeToDiskFAT(int fatIndex) {
     fclose(p);
 }
 
+
+void clearBlock(int blockNumber) {
+    FILE *p = getPtr(blockNumber);
+    fseek(p, 0, SEEK_CUR);
+    for(int i=0;i<partit.block_size;i++) {
+        fputc('0', p);
+    }
+    fclose(p);
+}
+
 int readBlock(int file) {
     if (file == -1) return -1; // error
 
@@ -374,9 +385,10 @@ int writeBlock(int file, char *data) {
     int blockCounter = 0;
 
     int ptr;
-    ptr = fat[file].current_location;
+    // ptr = fat[file].current_location;
+    ptr = 0;
 
-    if (ptr == -1) ptr = 0;
+    // if (ptr == -1) ptr = 0;
 
     while (blockCounter < lastBlock) {
         printf("DEBUG: TRYING TO WRITE\n");
@@ -384,6 +396,7 @@ int writeBlock(int file, char *data) {
         if (blockNumber == -1) blockNumber = findSpace(); // find available space
         if (blockNumber == -1) {printf("DEBUG: no available space to write"); return -1;}
         fat[file].blockPtrs[ptr] = blockNumber;
+        clearBlock(blockNumber);
 
         fp[pointer] = getPtr(blockNumber);
 
