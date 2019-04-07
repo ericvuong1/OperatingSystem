@@ -126,9 +126,11 @@ void boot()
 	int result = writeBlock(file, "abcdefgh");
 	printf("DEBUG: result: %d\n", result);
 	file = openfile("HI");
-	writeBlock(file, "abcd");
+	writeBlock(file, "abcdefghijklmnopqrstuvyxuzzjd");
 	file = openfile("HO");
 	result = writeBlock(file, "1234");
+	file = openfile("HI");
+	printf("DEBUG: reading %s\n", readFile(file));	
 	// FILE *p = getPtr(0);
 	// fseek(p, 0, SEEK_CUR);
 	// fputc('a', p),

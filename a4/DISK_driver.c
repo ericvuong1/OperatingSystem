@@ -44,6 +44,9 @@ FILE *fp[5];
 char *partitionPath;
 char *dataArea;
 
+char *returnBlock() {
+    return block_buffer;
+}
 
 int myceil(float num)
 {
@@ -70,7 +73,7 @@ int findSpace() {
 char *appendCharToString(char *str, char c) {
 
     size_t len = strlen(str);
-    char *str2 = malloc(len + 1 + 1 ); /* one for extra char, one for trailing zero */
+    char *str2 = malloc(len + 1 + 1); /* one for extra char, one for trailing zero */
     strcpy(str2, str);
     str2[len] = c;
     str2[len + 1] = '\0';
@@ -322,26 +325,68 @@ void clearBlock(int blockNumber) {
     fclose(p);
 }
 
-int readBlock(int file) {
-    if (file == -1) return -1; // error
+char *readFile(int file) {
+    if (file == -1) return NULL; // error
 
-    int fatIndex = file;
     int pointer = -1;
     for(int i=0;i<5;i++) {
-        if(files[i].fatIndex == fatIndex) {
+        // printf("DEBUG checking files[%d] and has fatIndex %d\n", i, files[i].fatIndex);
+        if(files[i].fatIndex == file) {
             pointer = i;
         }
     }
-    if (pointer == -1) return -1;
-    // fat[fatIndex].current_location; // TODO: ??
+    // printf("DEBUG: attempt to write %s at file %d with pointer %d\n", data, file, pointer);
+    if (pointer == -1) {
+        printf("DEBUG: no pointer exists\n"); 
+
+        printf("DEBUG: finding an available fp[]\n");
+        for(int i=0;i<5;i++){
+            if (fp[i] == NULL) { 
+                files[i].fatIndex = file;
+                pointer = i;
+                break;
+            }
+        }
+        // no available fp to write
+        if (pointer == -1) return NULL;
+    }
+
     FILE *p = fp[pointer];
-    // char *str = "";
-    // int counter = partit.block_size;
-    // while(counter > 0) {
-    //     appendCharToString(str, fgetc(p));
-    //     counter--;
-    // }
-    // block_buffer =  str;
+
+    int blockNumber = fat[file].blockPtrs[0];
+    if (blockNumber == -1) return NULL; 
+
+    // int ptr = fat[file].current_location;
+    // if (ptr == -1) ptr = 0;
+    int ptr = 0;
+    fat[file].current_location = ptr;
+
+    char *str = "";
+    for(int i=fat[file].current_location; i<10;i++) {
+        printf("DEBUG: at file %d and blockPtr[%d] has %d\n", file, i, fat[file].blockPtrs[i]);
+        if(readBlock(fat[file].blockPtrs[i]) == -1) return str;
+        str = concatStrings(str, returnBlock());
+        fat[file].current_location++;
+    }
+    return str;
+}
+
+int readBlock(int file) {
+    if(file == -1) return -1;
+    printf("Reading block %d\n", file);
+    FILE *p = getPtr(file);
+    char *str = "";
+    int counter = partit.block_size;
+    while(counter > 0) {
+        char a = fgetc(p);
+        printf("DEBUG: read character %c\n", a);
+        char *str2 = &a;
+        str = concatStrings(str, str2);
+        counter--;
+    }
+    printf("assigning %s to block_buffer===\n", str);
+    block_buffer = str;
+    printf("DEBUG: buffer updated to %s\n", block_buffer);
     return 1;
 }
 
@@ -350,13 +395,12 @@ int writeBlock(int file, char *data) {
 
     int pointer = -1;
     for(int i=0;i<5;i++) {
-        printf("DEBUG checking files[%d] and has fatIndex %d\n", i, files[i].fatIndex);
-        printf("COLISS\n");
+        // printf("DEBUG checking files[%d] and has fatIndex %d\n", i, files[i].fatIndex);
         if(files[i].fatIndex == file) {
             pointer = i;
         }
     }
-    printf("DEBUG: attempt to write %s at file %d with pointer %d\n", data, file, pointer);
+    // printf("DEBUG: attempt to write %s at file %d with pointer %d\n", data, file, pointer);
     if (pointer == -1) {
         printf("DEBUG: no pointer exists\n"); 
 
@@ -373,7 +417,6 @@ int writeBlock(int file, char *data) {
     }
 
 
-    // fat[fatIndex].current_location; // TODO: ??
     FILE *p = fp[pointer];
 
     int length = strlen(data);
@@ -417,6 +460,12 @@ int writeBlock(int file, char *data) {
         writeToDiskFAT(file);
         fclose(fp[pointer]);
     }
+    int file_length = 0;
+    for(int i=0;i<10;i++) {
+        if(fat[file].blockPtrs[i] != -1) file_length++;
+    }
+    fat[file].file_length = file_length;
+    writeToDiskFAT(file);
 
     return 1;
 }
