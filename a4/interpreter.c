@@ -122,7 +122,6 @@ int interpreter(char buf0[], char buf1[], char buf2[], char buf3[]) {
 	else if (strcmp(buf0, "Write")==0) {
 		if(strlen(buf1)<1 || strlen(buf2)<1) return 7; // Write error
 		int file = openfile(strdup(buf1));
-		printf("DEBUG: COMMAND WRITE CALLED, buf0: %s, buf1: %s, buf2: %s\n", buf0, buf1, buf2);
 		result = writeBlock(file, strdup(buf2));
 		if(result) result = 0;
 	}

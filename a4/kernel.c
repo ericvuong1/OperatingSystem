@@ -118,8 +118,8 @@ void boot()
 	}
 	prepareBackingStore();
 	initIO();
-	// partition("Victor.txt", 10, 5);
-	// mount("Victor.txt");
+	partition("Victor.txt", 10, 5);
+	mount("Victor.txt");
 	// int file = openfile("ok");
 	// writeBlock(file, "hi");
 	// file = openfile("hi");

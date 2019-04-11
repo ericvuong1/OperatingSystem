@@ -20,6 +20,8 @@ char *concatStrings(const char *s1, const char *s2);
 int myceil(float num);
 void clearBlock(int blockNumber);
 
+char EMPTY_DATA[100] = "                                                                                        \n";
+
 // variables
  
 struct PARTITION {
@@ -101,7 +103,7 @@ char *my_itoa(int num)
 { return my_itoa_buf(NULL, 0, num); }
 
 void writeLine(char *s, FILE *p) {
-    printf("DEBUGGGGG: FILE NAME %s\n", fat[0].filename);
+    // printf("DEBUGGGGG: FILE NAME %s\n", fat[0].filename);
     // char *tmp = malloc(sizeof(strlen(s)));
     // char tmp[1000];
     // int i = 0;
@@ -116,7 +118,7 @@ void writeLine(char *s, FILE *p) {
         fseek(p, -1, SEEK_CUR);
         fputc('\0', p);
     }
-    if(strlen(s) > 4) fputc('\n',p);
+    // if(strlen(s) > 4) fputc('\n',p);
 }
 
 // Helper function to concat strings
@@ -134,7 +136,7 @@ void writeToDisk() {
     fprintf(p, "%d\n", partit.total_blocks);
     for(int i=0;i<20;i++){
 
-        if(fat[i].filename == NULL) fprintf(p,"NULL\n");
+        if(fat[i].filename == NULL) fprintf(p, "%s", EMPTY_DATA);
         else fprintf(p, "%s\n", fat[i].filename);
 
         fprintf(p, "%d\n", fat[i].file_length);
@@ -159,7 +161,7 @@ void loadFromDisk(char *name) {
 
     for(int i=0;i<20;i++){
         fgets(buf, 100,p); // filename
-        if(strcmp("NULL\n", buf)==0){ // skip if null
+        if(strcmp(EMPTY_DATA, buf)==0){ // skip if null
             printf("DEBUG: empty FAT\n");
             fgets(buf,100,p); //file_length
             for(int j=0;j<10;j++) {
@@ -224,7 +226,7 @@ int partition(char *name, int blocksize, int totalblocks) {
 
     // EMPTY FAT
     for(int i=0;i<20;i++){
-        fprintf(p, "NULL\n"); // filename
+        fprintf(p, "%s", EMPTY_DATA); // filename
         fprintf(p, "-1\n"); // file_length
         for(int j=0;j<10;j++) fprintf(p, "-1\n"); // blockPtr
         fprintf(p, "-1\n"); // current_location
