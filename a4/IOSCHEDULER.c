@@ -20,4 +20,5 @@ char *IOscheduler(char *data, PCB *ptr, int cmd) {
     } else if (cmd == 0) {
         // read
     }
+    return "";
 }

@@ -121,14 +121,18 @@ int interpreter(char buf0[], char buf1[], char buf2[], char buf3[]) {
 	}
 	else if (strcmp(buf0, "Write")==0) {
 		if(strlen(buf1)<1 || strlen(buf2)<1) return 7; // Write error
-		int file = openfile(buf1);
-		result = writeBlock(file, buf2);
+		int file = openfile(strdup(buf1));
+		printf("DEBUG: COMMAND WRITE CALLED, buf0: %s, buf1: %s, buf2: %s\n", buf0, buf1, buf2);
+		result = writeBlock(file, strdup(buf2));
 		if(result) result = 0;
 	}
 	else if (strcmp(buf0, "Read")==0) {
 		if (strlen(buf1)<1 || strlen(buf2)<1) return 8; // Read error
-		int file = openfile(buf1);
-		add(strdup(buf2), strdup(readFile(file)));
+		int file = openfile(strdup(buf1));
+		printf("DEBUG: checkiing buf2: %s\n", buf2);
+		char * data = readFile(file);
+		printf("DEBUG: CHECKING DATA READ %s\n", data);
+		add(strdup(buf2), strdup(data));
 		result = 0;
 	}
 	else {

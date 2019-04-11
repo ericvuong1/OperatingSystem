@@ -101,11 +101,22 @@ char *my_itoa(int num)
 { return my_itoa_buf(NULL, 0, num); }
 
 void writeLine(char *s, FILE *p) {
+    printf("DEBUGGGGG: FILE NAME %s\n", fat[0].filename);
+    // char *tmp = malloc(sizeof(strlen(s)));
+    // char tmp[1000];
+    // int i = 0;
+    // for (i = 0; i < strlen(s); i++) {
+    //     tmp[i] = s[i];
+    // }
+    // tmp[i] = '\0';
+    // printf("string in array: %s\n", tmp);
+    s = concatStrings(s, "\0");
     fputs(s, p);
     while(fgetc(p) != '\n') { // new line
         fseek(p, -1, SEEK_CUR);
         fputc('\0', p);
     }
+    if(strlen(s) > 4) fputc('\n',p);
 }
 
 // Helper function to concat strings
@@ -124,7 +135,7 @@ void writeToDisk() {
     for(int i=0;i<20;i++){
 
         if(fat[i].filename == NULL) fprintf(p,"NULL\n");
-        else fprintf(p, "%s", fat[i].filename);
+        else fprintf(p, "%s\n", fat[i].filename);
 
         fprintf(p, "%d\n", fat[i].file_length);
         for(int j=0;j<10;j++){
@@ -229,7 +240,7 @@ int partition(char *name, int blocksize, int totalblocks) {
     // fclose(p);
     return 1; //TODO: return 0??? when fail?
 }
-// TODO: not done
+
 int mount(char *name) {
 
     loadFromDisk(name);
@@ -243,7 +254,7 @@ int mount(char *name) {
 
 // helper function that returns where data area is in the partition file
 FILE *getPtr(int ptr) {
-    printf("DEBUG: inside getPtr\n");
+    // printf("DEBUG: inside getPtr\n");
     char buf[100];
     FILE *p = fopen(partitionPath, "r+");
     for(int i=0;i<(2+20*13);i++) {
@@ -254,16 +265,23 @@ FILE *getPtr(int ptr) {
 } 
 
 int openfile(char *name) {
+    printf("DEBUG filename[0] %s\n", fat[0].filename);
     printf("DEBUG: opening file %s\n", name);
     // search in fat[]
     for(int i=0;i<20;i++){
         if(fat[i].filename == NULL) continue; // no filename 
         if(strcmp(fat[i].filename, name)==0) { //file found
+            printf("DEBUG: File %s is same as %s found at fat index %d\n", fat[i].filename, name, i);
             for(int j=0;j<5;j++) {
+                // check if fp[] already open for fatindex i
+                // if(files[j].fatIndex == i) {
+                //     fp[j] = getPtr(fat[i].blockPtrs[0]); // get FIRST BLOCK
+                //     printf("DEBUG: File %d already opened, using fp[%d]\n", i, j);
+                //     return i;
+                // }
                 if (fp[j] == NULL) {
                     printf("DEBUG: found the filename %s, setting fp[%d]\n", name, j);
-                    FILE *p = getPtr(fat[i].blockPtrs[0]); // get FIRST BLOCK
-                    fp[j] = p;
+                    fp[j] = getPtr(fat[i].blockPtrs[0]); // get FIRST BLOCK
                     return i;
                 }
             }
@@ -279,6 +297,7 @@ int openfile(char *name) {
             printf("DEBUG: new entry for %s\n", name);
             fat[i].filename = name;
             writeToDiskFAT(i);
+            // writeToDisk();
             printf("DEBUG: FAT %d is free\n", i);
             return i;
         }
@@ -446,7 +465,6 @@ int writeBlock(int file, char *data) {
         int counter = partit.block_size;
         while(counter > 0) {
             fseek(fp[pointer], 0, SEEK_CUR);
-            // fputc(*data, fp[pointer]);
             fputc(*data, fp[pointer]);
             length = length - 1;
             if(length == 0) break; // done writing
@@ -458,6 +476,7 @@ int writeBlock(int file, char *data) {
         fat[file].current_location = ptr;
         blockCounter = blockCounter + 1;
         writeToDiskFAT(file);
+        // writeToDisk();
         fclose(fp[pointer]);
     }
     int file_length = 0;
@@ -466,6 +485,7 @@ int writeBlock(int file, char *data) {
     }
     fat[file].file_length = file_length;
     writeToDiskFAT(file);
+    // writeToDisk();
 
     return 1;
 }

@@ -118,10 +118,14 @@ void boot()
 	}
 	prepareBackingStore();
 	initIO();
-	// partition("something.txt", 5, 10);
-	// mount("something.txt");
-	// int file = openfile("HI");
-	// writeBlock(file, "12345678");
+	// partition("Victor.txt", 10, 5);
+	// mount("Victor.txt");
+	// int file = openfile("ok");
+	// writeBlock(file, "hi");
+	// file = openfile("hi");
+	// writeBlock(file, "ok");
+// int file = openfile("HI");
+	// writeBlock(file, "hello asd");
 	// file = openfile("HO");
 	// int result = writeBlock(file, "abcdefgh");
 	// printf("DEBUG: result: %d\n", result);
@@ -129,6 +133,14 @@ void boot()
 	// writeBlock(file, "abcdefghijklmnopqrstuvyxuzzjd");
 	// file = openfile("HO");
 	// result = writeBlock(file, "1234");
+	// file = openfile("HI");
+	// 	result = writeBlock(file, "1234");
+	// file = openfile("HI");
+	// 	result = writeBlock(file, "1234");
+	// file = openfile("HI");
+	// 	result = writeBlock(file, "1234");
+	// file = openfile("HI");
+	// 	result = writeBlock(file, "1234");
 	// file = openfile("HI");
 	// printf("DEBUG: reading %s\n", readFile(file));	
 }
