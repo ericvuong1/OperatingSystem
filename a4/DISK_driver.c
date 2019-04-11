@@ -369,7 +369,7 @@ char *readFile(int file) {
             }
         }
         // no available fp to write
-        if (pointer == -1) return NULL;
+        if (pointer == -1) return NULL; // empty file
     }
 
     FILE *p = fp[pointer];
@@ -385,10 +385,11 @@ char *readFile(int file) {
     char *str = "";
     for(int i=fat[file].current_location; i<10;i++) {
         printf("DEBUG: at file %d and blockPtr[%d] has %d\n", file, i, fat[file].blockPtrs[i]);
-        if(readBlock(fat[file].blockPtrs[i]) == -1) return str;
+        if(readBlock(fat[file].blockPtrs[i]) == -1) {return str;};
         str = concatStrings(str, returnBlock());
         fat[file].current_location++;
     }
+    printf("READ: %s\n", str);
     return str;
 }
 
@@ -397,17 +398,24 @@ int readBlock(int file) {
     printf("Reading block %d\n", file);
     FILE *p = getPtr(file);
     char *str = "";
-    int counter = partit.block_size;
-    while(counter > 0) {
+    for(int i = 0; i < partit.block_size; i++) {
         char a = fgetc(p);
+        block_buffer[i] = a;
         printf("DEBUG: read character %c\n", a);
-        char *str2 = &a;
-        str = concatStrings(str, str2);
-        counter--;
     }
-    printf("assigning %s to block_buffer===\n", str);
-    block_buffer = str;
     printf("DEBUG: buffer updated to %s\n", block_buffer);
+
+    // int counter = partit.block_size;
+    // while(counter > 0) {
+    //     char a = fgetc(p);
+    //     printf("DEBUG: read character %c\n", a);
+    //     char *str2 = &a;
+    //     str = concatStrings(str, str2);
+    //     counter--;
+    // }
+    // printf("assigning %s to block_buffer===\n", str);
+    // block_buffer = str;
+    // printf("DEBUG: buffer updated to %s\n", block_buffer);
     return 1;
 }
 

@@ -1,6 +1,4 @@
-help
-set x 10
+Write exectest [hello this is a test]
+Write exectest [asdasd]
+Read exectest x
 print x
-set x 20
-print x
-quit
