@@ -134,7 +134,6 @@ int interpreter(char buf0[], char buf1[], char buf2[], char buf3[]) {
 		printf("DEBUG: checkiing buf2: %s\n", buf2);
 		fileToUse = file;
 		char * data = IOscheduler(NULL, NULL, 0);
-		//char * data = readFile(file);
 		printf("DEBUG: CHECKING DATA READ %s\n", data);
 		add(strdup(buf2), strdup(data));
 		result = 0;

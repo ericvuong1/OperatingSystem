@@ -103,22 +103,12 @@ char *my_itoa(int num)
 { return my_itoa_buf(NULL, 0, num); }
 
 void writeLine(char *s, FILE *p) {
-    // printf("DEBUGGGGG: FILE NAME %s\n", fat[0].filename);
-    // char *tmp = malloc(sizeof(strlen(s)));
-    // char tmp[1000];
-    // int i = 0;
-    // for (i = 0; i < strlen(s); i++) {
-    //     tmp[i] = s[i];
-    // }
-    // tmp[i] = '\0';
-    // printf("string in array: %s\n", tmp);
     s = concatStrings(s, "\0");
     fputs(s, p);
     while(fgetc(p) != '\n') { // new line
         fseek(p, -1, SEEK_CUR);
         fputc('\0', p);
     }
-    // if(strlen(s) > 4) fputc('\n',p);
 }
 
 // Helper function to concat strings
@@ -185,7 +175,8 @@ void loadFromDisk(char *name) {
             fat[i].blockPtrs[j] = atoi(buf);
         }
         fgets(buf,100,p);
-        fat[i].current_location = atoi(buf);
+        // fat[i].current_location = atoi(buf);
+        fat[i].current_location = -1;
     };
 }
 
@@ -204,6 +195,20 @@ void initIO() {
     }
 }
 
+/*
+ * Check if a file exist using fopen() function
+ * return 1 if the file exist otherwise return 0
+ */
+int cfileexists(const char * filename){
+    /* try to open file to read */
+    FILE *file;
+    if ((file = fopen(filename, "r"))){
+        fclose(file);
+        return 1;
+    }
+    return 0;
+}
+
 int partition(char *name, int blocksize, int totalblocks) {
     printf("DEBUG: Partitioning\n");
     system("mkdir PARTITION");
@@ -212,7 +217,7 @@ int partition(char *name, int blocksize, int totalblocks) {
     char *pathName = concatStrings("./PARTITION/", name);
     partitionPath = pathName;
 
-
+    if(cfileexists(pathName)) return 1; // file exists already, so mount it
 
     FILE * p = fopen(pathName, "w");
     if (p == NULL) return 0;
@@ -244,6 +249,7 @@ int partition(char *name, int blocksize, int totalblocks) {
 }
 
 int mount(char *name) {
+    printf("DEBUG: mounting %s\n", name);
 
     loadFromDisk(name);
     block_buffer = malloc(partit.block_size);
@@ -274,16 +280,22 @@ int openfile(char *name) {
         if(fat[i].filename == NULL) continue; // no filename 
         if(strcmp(fat[i].filename, name)==0) { //file found
             printf("DEBUG: File %s is same as %s found at fat index %d\n", fat[i].filename, name, i);
+
+            // check if fp[] already open for fatindex i
             for(int j=0;j<5;j++) {
-                // check if fp[] already open for fatindex i
-                // if(files[j].fatIndex == i) {
-                //     fp[j] = getPtr(fat[i].blockPtrs[0]); // get FIRST BLOCK
-                //     printf("DEBUG: File %d already opened, using fp[%d]\n", i, j);
-                //     return i;
-                // }
+                if(files[j].fatIndex == i) {
+                    fp[j] = getPtr(fat[i].blockPtrs[0]); // get FIRST BLOCK
+                    printf("DEBUG: File %d already opened, using fp[%d]\n", i, j);
+                    // fat[i].current_location = 0;
+                    return i;
+                }
+            }
+            // check if there's an fp[] available
+            for(int j=0;j<5;j++) {
                 if (fp[j] == NULL) {
                     printf("DEBUG: found the filename %s, setting fp[%d]\n", name, j);
                     fp[j] = getPtr(fat[i].blockPtrs[0]); // get FIRST BLOCK
+                    // fat[i].current_location = 0;
                     return i;
                 }
             }
@@ -375,16 +387,19 @@ char *readFile(int file) {
     FILE *p = fp[pointer];
 
     int blockNumber = fat[file].blockPtrs[0];
-    if (blockNumber == -1) return NULL; 
+    if (blockNumber == -1) return NULL; // empty file
 
     // int ptr = fat[file].current_location;
     // if (ptr == -1) ptr = 0;
     int ptr = 0;
     fat[file].current_location = ptr;
 
+    printf("DEBUG: current location is %d\n", ptr);
+
     char *str = "";
     for(int i=fat[file].current_location; i<10;i++) {
         printf("DEBUG: at file %d and blockPtr[%d] has %d\n", file, i, fat[file].blockPtrs[i]);
+        printf("DEBUG: current location after read is %d\n", fat[file].current_location);
         if(readBlock(fat[file].blockPtrs[i]) == -1) {return str;};
         str = concatStrings(str, returnBlock());
         fat[file].current_location++;
@@ -405,17 +420,6 @@ int readBlock(int file) {
     }
     printf("DEBUG: buffer updated to %s\n", block_buffer);
 
-    // int counter = partit.block_size;
-    // while(counter > 0) {
-    //     char a = fgetc(p);
-    //     printf("DEBUG: read character %c\n", a);
-    //     char *str2 = &a;
-    //     str = concatStrings(str, str2);
-    //     counter--;
-    // }
-    // printf("assigning %s to block_buffer===\n", str);
-    // block_buffer = str;
-    // printf("DEBUG: buffer updated to %s\n", block_buffer);
     return 1;
 }
 
@@ -457,10 +461,10 @@ int writeBlock(int file, char *data) {
     int blockCounter = 0;
 
     int ptr;
-    // ptr = fat[file].current_location;
-    ptr = 0;
+    ptr = fat[file].current_location;
+    // ptr = 0;
 
-    // if (ptr == -1) ptr = 0;
+    if (ptr == -1) ptr = 0;
 
     while (blockCounter < lastBlock) {
         printf("DEBUG: TRYING TO WRITE\n");
