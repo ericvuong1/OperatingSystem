@@ -49,7 +49,7 @@ int parse(char buffer[], char arg0[], char arg1[], char arg2[], char arg3[])
 	j = 0;
 	if (buffer[i] == '[') {
 		i++;
-		while(buffer[i] != ']') {
+		while(buffer[i] != ']' && buffer[i] != '\n' && buffer[i] != '\r') {
 			arg2[j] = buffer[i];
 			j++;
 			i++;
@@ -119,6 +119,12 @@ int prompt(char buffer[])
 		printf("Script filename not found\n");
 	if (result == 5)
 		printf("The exec progam was not found\n");
+	if (result == 6)
+		printf("Missing parameters in Mount\n");
+	if (result == 7)
+		printf("Missing parameters in Write\n");
+	if (result == 8)
+		printf("Missing parameters in Read\n");
 
 	return 0;
 }

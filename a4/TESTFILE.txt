@@ -1,0 +1,8 @@
+Mount hello.txt 10 10
+Write x [hello]
+Write y [how are you]
+Write x [my name is eric]
+Read x z
+print z
+Read y w
+print w

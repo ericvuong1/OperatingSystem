@@ -81,6 +81,9 @@ int interpreter(char buf0[], char buf1[], char buf2[], char buf3[]) {
 		printf("print VAR         display contents of VAR\n");
 		printf("run SCRIPT.TXT    interpret SCRIPT.TXT\n");
 		printf("exec P1 P2 P2     can run up to 3 distinct programs\n");
+		printf("Mount number_of_blocks block_size	mount partition\n");
+		printf("Write filename [a bunch of words]	write to a file\n");
+		printf("Read filename variable	read a file from beginning\n");
 
 		result = 0;
 	}

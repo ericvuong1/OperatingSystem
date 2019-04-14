@@ -8,8 +8,8 @@ int openfile(char *name);             // find filename or creates file if it doe
 int readBlock(int file);              // using file FAT index number, load buffer with data from blockID
 char *returnBlock();                  // return block as string from buffer_block
 int writeBlock(int file, char *data); // sensitive to block size, write data to disk at blockID
-FILE *getPtr(int ptr);
 
+FILE *getPtr(int ptr);
 void writeToDisk();
 void loadFromDisk(char *name);
 char *appendCharToString(char *str, char c);
