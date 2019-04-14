@@ -116,7 +116,7 @@ int interpreter(char buf0[], char buf1[], char buf2[], char buf3[]) {
 		int blockSize = atoi(buf2);
 		int blockLength = atoi(buf3);
 		if (blockSize == 0 || blockLength == 0) {
-			return 1; // mount error
+			return 6; // mount error
 		}
 		result = partition(buf1, blockSize, blockLength);
 		if(!result) return 1;

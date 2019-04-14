@@ -1,3 +1,0 @@
-Write exectest [okokok]
-Read exectest y
-print y

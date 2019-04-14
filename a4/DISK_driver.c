@@ -62,7 +62,9 @@ int myceil(float num)
     }
     return inum + 1;
 }
+int mounted = 0;
 
+// Finds next available space in data area to write, returns -1 if no blocks are available
 int findSpace()
 {
     FILE *p = getPtr(0);
@@ -281,7 +283,7 @@ int partition(char *name, int blocksize, int totalblocks)
     fclose(p);
 
     // fclose(p);
-    return 1; //TODO: return 0??? when fail?
+    return 1; 
 }
 
 int mount(char *name)
@@ -293,7 +295,7 @@ int mount(char *name)
 
     // printf("MOUNT %d\n", partit.block_size);
     // printf("MOUNT %d\n", partit.total_blocks);
-
+    mounted = 1;
     return 1;
 }
 
@@ -314,6 +316,11 @@ FILE *getPtr(int ptr)
 
 int openfile(char *name)
 {
+    if (!mounted)
+    {
+        printf("Must mount a partition before read/write!\n");
+        return -1;
+    }
     // printf("DEBUG filename[0] %s\n", fat[0].filename);
     // printf("DEBUG: opening file %s\n", name);
     // search in fat[]
@@ -332,7 +339,6 @@ int openfile(char *name)
                 {
                     fp[j] = getPtr(fat[i].blockPtrs[0]); // get FIRST BLOCK
                     // printf("DEBUG: File %d already opened, using fp[%d]\n", i, j);
-                    // fat[i].current_location = 0;
                     return i;
                 }
             }
@@ -343,12 +349,12 @@ int openfile(char *name)
                 {
                     // printf("DEBUG: found the filename %s, setting fp[%d]\n", name, j);
                     fp[j] = getPtr(fat[i].blockPtrs[0]); // get FIRST BLOCK
-                    // fat[i].current_location = 0;
+                    files[j].fatIndex = i;
                     return i;
                 }
             }
             // no available fp[]
-            printf("No available fp[]\n");
+            printf("No fp[] available during open file\n");
             return -1;
         }
     }
@@ -401,6 +407,7 @@ void writeToDiskFAT(int fatIndex)
     fclose(p);
 }
 
+// Empty a block when writing
 void clearBlock(int blockNumber)
 {
     FILE *p = getPtr(blockNumber);
@@ -444,7 +451,7 @@ char *readFile(int file)
         // no available fp to write
         if (pointer == -1)
         {
-            printf("No fp[] available\n");
+            printf("No fp[] available during read file\n");
             return NULL;
         } // empty file
     }
@@ -525,14 +532,16 @@ int writeBlock(int file, char *data)
                 pointer = i;
                 break;
             }
+            // printf("fp[%d] not NULL\n", i);
         }
         // no available fp to write
         if (pointer == -1)
         {
-            printf("No fp[] available\n");
+            printf("No fp[] available during write file\n");
             return -1;
         }
     }
+    // printf("DEBUG: fp[%d] is available\n", pointer);
 
     FILE *p = fp[pointer];
 

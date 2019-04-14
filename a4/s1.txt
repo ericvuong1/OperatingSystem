@@ -1,4 +1,7 @@
-Write exectest [hello this is a test]
-Write exectest [asdasd]
-Read exectest x
-print x
+Mount fp 10 10
+Write a [hi]
+Write b [hi]
+Write c [hi]
+Write d [hi]
+Write e [hi]
+Write f [hi]
