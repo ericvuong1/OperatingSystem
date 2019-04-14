@@ -131,10 +131,8 @@ int interpreter(char buf0[], char buf1[], char buf2[], char buf3[]) {
 	else if (strcmp(buf0, "Read")==0) {
 		if (strlen(buf1)<1 || strlen(buf2)<1) return 8; // Read error
 		int file = openfile(strdup(buf1));
-		printf("DEBUG: checkiing buf2: %s\n", buf2);
 		fileToUse = file;
 		char * data = IOscheduler(NULL, NULL, 0);
-		printf("DEBUG: CHECKING DATA READ %s\n", data);
 		add(strdup(buf2), strdup(data));
 		result = 0;
 	}
